@@ -1,6 +1,8 @@
 import './style.css'
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
+import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
+import { FontLoader } from 'three/addons/loaders/FontLoader.js';
 
 let scene, camera, renderer, controls;
 let isAnimating = false;
@@ -48,20 +50,29 @@ MinusZeichen.add(WaagerechterStrichMeshfürMinuszeichen);
 MinusZeichen.position.setY(-5);
 
 //Koordinatensystem
-const BlackMaterial = new THREE.MeshBasicMaterial({
-  color: 0x000000
-});
-const xAchse = new THREE.BoxGeometry(10, 0.05, 0.2);
-const yAchse = new THREE.BoxGeometry(0.05, 10, 0.2);
-const WeiserHintergrund = new THREE.BoxGeometry(5, 5, 0.1);
+const gridsize = 50;
+const griddivisions = 100;
+const centerlinecolor = 0xffffff;
+const gridlinecolor = 0x444444;
+const gridhelper = new THREE.GridHelper(gridsize, griddivisions, centerlinecolor, gridlinecolor);
+gridhelper.rotation.x = Math.PI/2;
+gridhelper.position.x = -5;
+gridhelper.material.transparent = true;
+gridhelper.material.opacity = 0.75;
 
-const xAchseMesh = new THREE.Mesh(xAchse, BlackMaterial);
-const yAchseMesh = new THREE.Mesh(yAchse, BlackMaterial);
-const WeiserHintergrundMesh = new THREE.Mesh(WeiserHintergrund, WhiteMaterial);
-const Koordinatensystem = new THREE.Group();
-Koordinatensystem.add(yAchseMesh);
-Koordinatensystem.add(xAchseMesh);
-Koordinatensystem.add(WeiserHintergrundMesh);
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function animate() {
     if (!isAnimating) return;
@@ -69,6 +80,12 @@ function animate() {
     controls.update();
     renderer.render(scene, camera);
 }
+
+
+
+
+
+
 
 export function init(button) {
     // Scene setup
@@ -91,7 +108,7 @@ export function init(button) {
     scene.add(negativeMagnet);
     scene.add(PlusZeichen);
     scene.add(MinusZeichen);
-    scene.add(Koordinatensystem);
+    scene.add(gridhelper);
 
     // Add lighting
     const pointLight = new THREE.PointLight(0xffffff, 50);
