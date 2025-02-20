@@ -114,7 +114,7 @@ Each scene can be accessed from the main menu. Use the following controls:
   - `q` - Particle charge
   - `m` - Particle mass
 
-### Magnetic Field (Giorgio)
+### Magnetic Field
 - Visualization of magnetic field lines
 - Adjustable field strength and direction
 
