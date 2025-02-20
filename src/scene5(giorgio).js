@@ -1,8 +1,6 @@
 import './style.css'
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
-import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
-import { FontLoader } from 'three/addons/loaders/FontLoader.js';
 
 let scene, camera, renderer, controls;
 let isAnimating = false;
@@ -15,14 +13,14 @@ const Redmaterial = new THREE.MeshBasicMaterial({
   color: 0xFF0000 
 });
 const postiveMagnet = new THREE.Mesh(Magnets, Redmaterial);
-postiveMagnet.position.setY(5)
+postiveMagnet.position.setY(-5)
 
 //green magnet
 const Greenmaterial = new THREE.MeshBasicMaterial({
   color: 0x00FF00
 });
 const negativeMagnet = new THREE.Mesh(Magnets, Greenmaterial);
-negativeMagnet.position.setY(-5)
+negativeMagnet.position.setY(5)
 
 //Zeichen auf den Magneten
 const WaagerechterStrich = new THREE.BoxGeometry(0.9, 0.1, 1.1);
@@ -42,12 +40,12 @@ const WaagerechterStrichMeshfürMinuszeichen = new THREE.Mesh(WaagerechterStrich
 const PlusZeichen = new THREE.Group();
 PlusZeichen.add(WaagerechterStrichMeshfürPluszeichen);
 PlusZeichen.add(SenkrechterStrichMeshfürPlusZeichen);
-PlusZeichen.position.setY(5);
+PlusZeichen.position.setY(-5);
 
 //MinusZeichen
 const MinusZeichen = new THREE.Group();
 MinusZeichen.add(WaagerechterStrichMeshfürMinuszeichen);
-MinusZeichen.position.setY(-5);
+MinusZeichen.position.setY(5);
 
 //Koordinatensystem
 const gridsize = 50;
@@ -60,8 +58,19 @@ gridhelper.position.x = -5;
 gridhelper.material.transparent = true;
 gridhelper.material.opacity = 0.75;
 
+const showarrows = true;
+//const arrowdirection = new THREE.Vector3(); //upwards
+//const arroworigin = new THREE.Vector3(0, -5, 0)
+//const arrowlength = 10;
 
 
+
+//const arrowhelper = new THREE.ArrowHelper(arrowdirection, arroworigin, arrowlength);
+
+
+//rechnen versuchen...
+
+const speed = new THREE.Vector3();
 
 
 
@@ -109,14 +118,22 @@ export function init(button) {
     scene.add(PlusZeichen);
     scene.add(MinusZeichen);
     scene.add(gridhelper);
-
-    // Add lighting
-    const pointLight = new THREE.PointLight(0xffffff, 50);
-    pointLight.position.set(0, 0, 5);
-    const ambientLight = new THREE.AmbientLight(0xffffff);
-    scene.add(ambientLight);
-    scene.add(pointLight);
-
+    for (let i = -7; i < 4; i++) {
+        const arrowdirection = new THREE.Vector3(); //upwards
+        const arroworigin = new THREE.Vector3(0, -5, 0)
+        const arrowlength = 9.5;
+        const arrowcolor = 0xFFFFFF;
+        const arrowheadlength = 1.5;
+        const arrowhelper = new THREE.ArrowHelper(arrowdirection, arroworigin, arrowlength, arrowcolor, arrowheadlength);
+        arrowhelper.position.x = i + 2;
+    
+        if (showarrows == true) {
+            scene.add(arrowhelper);
+            console.log("arrows are enabled");
+        } else {
+            console.log("arrows are disabled")
+        };
+    }
     // Setup controls
     controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
