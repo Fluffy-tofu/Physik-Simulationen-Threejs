@@ -1,10 +1,25 @@
 import './style.css'
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
+import { ThreeMFLoader } from 'three/examples/jsm/Addons.js';
 
 let scene, camera, renderer, controls;
 let isAnimating = false;
 let animationButton; // Store reference to the button
+
+// --- Physics variables ---
+// Gravity acceleration (units per second²)
+const gravity = new THREE.Vector3(0, -9.81, 0);
+// A fixed time step (in seconds) used per frame (note: for a more robust simulation you might want to compute deltaTime dynamically)
+const dt = 0.016;
+const elektronvelocity = new THREE.Vector3(0, 0, 0);
+
+//for future toggles
+const showarrows = true;
+const showefield = true;
+const showelektrons = true;
+
+
 
 //different Magnets
 const Magnets = new THREE.BoxGeometry(10, 1, 1)
@@ -59,11 +74,15 @@ gridhelper.position.x = -5;
 gridhelper.material.transparent = true;
 gridhelper.material.opacity = 0.75;
 
-const showarrows = true;
-const showefield = true;
 
-//rechnen versuchen...
-const speed = new THREE.Vector3();
+
+
+
+
+
+
+
+
 
 function toggleAnimation() {
     isAnimating = !isAnimating;
@@ -75,12 +94,7 @@ function toggleAnimation() {
     }
 }
 
-function animate() {
-    if (!isAnimating) return;
-    requestAnimationFrame(animate);
-    controls.update();
-    renderer.render(scene, camera);
-}
+
 
 // Handle keyboard controls
 function handleKeyPress(event) {
@@ -147,16 +161,17 @@ export function init(button) {
         completeefield.add(efieldmesh);
         completeefield.add(efieldinnerpointmesh);
         completeefield.position.x = i + 2;
-        //Philip help
+        //Philip help how tf do i make it go in both x and y without makeing a whole new one??
         //completeefield.position.y = i + 2;
 
-        if (showefield === true){
-            scene.add(completeefield)
-            console.log("efield is enabled");
-        } else {
-            console.log("eflied is disabled");
-        }
+        completeefield.visible = showefield;
+        scene.add(completeefield);
     }
+
+    //elektronen versuchen zu machen
+    
+
+
 
     // Setup controls
     controls = new OrbitControls(camera, renderer.domElement);
@@ -172,6 +187,34 @@ export function init(button) {
     // Setup animation toggle via spacebar
     document.addEventListener('keydown', handleKeyPress);
 }
+
+
+
+const elektronradius = 0.1;
+const elektron = new THREE.SphereGeometry(elektronradius);
+const elektronmesh = new THREE.Mesh(
+    elektron,
+    new THREE.MeshBasicMaterial({ color: 0xFFFF })
+);
+
+
+function animate() {
+    if (!isAnimating) return;
+
+    requestAnimationFrame(animate);
+
+    // Update velocity with gravity
+    elektronvelocity.add(gravity.clone().multiplyScalar(dt));
+    
+    // Update position using velocity
+    elektronmesh.position.add(elektronvelocity.clone().multiplyScalar(dt));
+
+    // Update visibility
+    elektronmesh.visible = showelektrons;
+    scene.add(elektronmesh);
+    renderer.render(scene, camera);
+}
+
 
 // Handle window resizing
 window.addEventListener('resize', onWindowResize, false);
