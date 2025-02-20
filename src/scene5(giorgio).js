@@ -4,6 +4,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 
 let scene, camera, renderer, controls;
 let isAnimating = false;
+let animationButton; // Store reference to the button
 
 //different Magnets
 const Magnets = new THREE.BoxGeometry(10, 1, 1)
@@ -59,29 +60,20 @@ gridhelper.material.transparent = true;
 gridhelper.material.opacity = 0.75;
 
 const showarrows = true;
-//const arrowdirection = new THREE.Vector3(); //upwards
-//const arroworigin = new THREE.Vector3(0, -5, 0)
-//const arrowlength = 10;
-
-
-
-//const arrowhelper = new THREE.ArrowHelper(arrowdirection, arroworigin, arrowlength);
-
+const showefield = true;
 
 //rechnen versuchen...
-
 const speed = new THREE.Vector3();
 
-
-
-
-
-
-
-
-
-
-
+function toggleAnimation() {
+    isAnimating = !isAnimating;
+    if (isAnimating) {
+        animationButton.textContent = 'Stop Animation';
+        animate();
+    } else {
+        animationButton.textContent = 'Start Animation';
+    }
+}
 
 function animate() {
     if (!isAnimating) return;
@@ -90,13 +82,17 @@ function animate() {
     renderer.render(scene, camera);
 }
 
-
-
-
-
-
+// Handle keyboard controls
+function handleKeyPress(event) {
+    if (event.code === 'Space') {
+        event.preventDefault(); // Prevent page scrolling
+        toggleAnimation();
+    }
+}
 
 export function init(button) {
+    animationButton = button; // Store button reference
+    
     // Scene setup
     scene = new THREE.Scene();
     camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
@@ -119,7 +115,6 @@ export function init(button) {
     scene.add(MinusZeichen);
     scene.add(gridhelper);
 
-    //i fucking hate for loops AND WHY DO I HAVE TO PUT THIS INTO THE BUTTON I HATE YOU PHILIP
     for (let i = -7; i < 4; i++) {
         const arrowdirection = new THREE.Vector3(); //upwards
         const arroworigin = new THREE.Vector3(0, -5, 0)
@@ -133,8 +128,34 @@ export function init(button) {
             scene.add(arrowhelper);
             console.log("arrows are enabled");
         } else {
-            console.log("arrows are disabled")
+            console.log("arrows are disabled");
         };
+    }
+
+    for (let i = -7; i<4; i++){
+        const efliedinnerradius = 0.2;
+        const efliedouterradius = efliedinnerradius + 0.05;
+        const efieldsegments = 32;
+        const efield = new THREE.RingGeometry(efliedinnerradius, efliedouterradius, efieldsegments);
+
+        
+        const efliedinnterpoint = new THREE.CircleGeometry(efliedinnerradius/4);
+        const efieldmesh = new THREE.Mesh(efield);
+        const efieldinnerpointmesh = new THREE.Mesh(efliedinnterpoint);
+
+        const completeefield = new THREE.Group();
+        completeefield.add(efieldmesh);
+        completeefield.add(efieldinnerpointmesh);
+        completeefield.position.x = i + 2;
+        //Philip help
+        //completeefield.position.y = i + 2;
+
+        if (showefield === true){
+            scene.add(completeefield)
+            console.log("efield is enabled");
+        } else {
+            console.log("eflied is disabled");
+        }
     }
 
     // Setup controls
@@ -145,17 +166,11 @@ export function init(button) {
     // Initial render
     renderer.render(scene, camera);
 
-    // Setup animation toggle
-    button.addEventListener('click', () => {
-        if (!isAnimating) {
-            isAnimating = true;
-            button.textContent = 'Stop Animation';
-            animate();
-        } else {
-            isAnimating = false;
-            button.textContent = 'Start Animation';
-        }
-    });
+    // Setup animation toggle via button
+    button.addEventListener('click', toggleAnimation);
+    
+    // Setup animation toggle via spacebar
+    document.addEventListener('keydown', handleKeyPress);
 }
 
 // Handle window resizing
