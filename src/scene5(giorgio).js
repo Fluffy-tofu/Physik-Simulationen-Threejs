@@ -118,6 +118,8 @@ export function init(button) {
     scene.add(PlusZeichen);
     scene.add(MinusZeichen);
     scene.add(gridhelper);
+
+    //i fucking hate for loops AND WHY DO I HAVE TO PUT THIS INTO THE BUTTON I HATE YOU PHILIP
     for (let i = -7; i < 4; i++) {
         const arrowdirection = new THREE.Vector3(); //upwards
         const arroworigin = new THREE.Vector3(0, -5, 0)
@@ -134,6 +136,7 @@ export function init(button) {
             console.log("arrows are disabled")
         };
     }
+
     // Setup controls
     controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
