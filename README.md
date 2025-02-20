@@ -33,7 +33,7 @@ A collection of interactive 3D physics simulations built using Three.js. This pr
 - Color-coded field visualization
 - Dynamic field switching
 
-### 5. Magnetic Field Visualization (Giorgio)
+### 5. Magnetic Field Visualization
 - Magnetic field line visualization
 - Interactive field strength control
 - Grid helper for spatial reference
