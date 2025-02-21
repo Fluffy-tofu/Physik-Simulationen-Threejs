@@ -1,7 +1,6 @@
 import './style.css'
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
-import { ThreeMFLoader } from 'three/examples/jsm/Addons.js';
 
 let scene, camera, renderer, controls;
 let isAnimating = false;
@@ -12,12 +11,14 @@ let animationButton; // Store reference to the button
 const gravity = new THREE.Vector3(0, -9.81, 0);
 // A fixed time step (in seconds) used per frame (note: for a more robust simulation you might want to compute deltaTime dynamically)
 const dt = 0.016;
-const elektronvelocity = new THREE.Vector3(0, 0, 0);
+const elektronvelocity = new THREE.Vector3(10, 0, 0);
 
 //for future toggles
 const showarrows = true;
 const showefield = true;
 const showelektrons = true;
+
+
 
 
 
