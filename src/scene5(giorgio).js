@@ -2,6 +2,7 @@ import './style.css'
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 
+
 let scene, camera, renderer, controls;
 let isAnimating = false;
 let animationButton; // Store reference to the button
@@ -22,50 +23,28 @@ const bfieldstrenght = 2*multiplier; //Tesla
 const efieldstrenght = 5*multiplier; // V/m
 const selectedspeed = 5;
 const initialspeed = new THREE.Vector3(selectedspeed,0,0);
-//B_feld speed
-//const lorentzkraft = new THREE.Vector3(0, q*initialspeed.x*bfieldstrenght, 0);
 
-
-//E-Feld speed
-//const elektrischekraft = new THREE.Vector3(0, -1*(q*efieldstrenght), 0);
-
-
-function calculateacceleration() {
-
-    const efieldacceleration = new THREE.Vector3(0, (q * efieldstrenght) / elektronmass, 0);
-    const bfieldacceleration = new THREE.Vector3(0, -1 * (q * initialspeed.x * bfieldstrenght) / elektronmass, 0);
-
-    console.log("fieldsacc", efieldacceleration, bfieldacceleration);
-
-    const totalAcceleration = new THREE.Vector3().addVectors(efieldacceleration, bfieldacceleration);
-    console.log("bitte nicht null", totalAcceleration);
-
-    return totalAcceleration;
-}
 
 
 
 //for future toggles
-const showarrows = false;
-const showefield = false;
+const showarrows = true;
+const showefield = true;
 const showelektrons = true;
-
-
-
 
 
 //different Magnets
 const Magnets = new THREE.BoxGeometry(10, 1, 1)
 
 //red magnet
-const Redmaterial = new THREE.MeshBasicMaterial({
+const Redmaterial = new THREE.MeshStandardMaterial({
     color: 0xFF0000
 });
 const postiveMagnet = new THREE.Mesh(Magnets, Redmaterial);
 postiveMagnet.position.setY(-5)
 
 //green magnet
-const Greenmaterial = new THREE.MeshBasicMaterial({
+const Greenmaterial = new THREE.MeshStandardMaterial({
     color: 0x00FF00
 });
 const negativeMagnet = new THREE.Mesh(Magnets, Greenmaterial);
@@ -75,7 +54,7 @@ negativeMagnet.position.setY(5)
 const WaagerechterStrich = new THREE.BoxGeometry(0.9, 0.1, 1.1);
 const SenkrechterStrich = new THREE.BoxGeometry(0.1, 0.9, 1.1);
 
-const WhiteMaterial = new THREE.MeshBasicMaterial({
+const WhiteMaterial = new THREE.MeshStandardMaterial({
     color: 0xffffff
 });
 
@@ -114,11 +93,7 @@ const elektronenkanonemesh = new THREE.Mesh(elektronenkanone, WhiteMaterial); //
 elektronenkanonemesh.position.setX(-8);
 
 
-
-
-
-
-
+const lightning = new THREE.AmbientLight(0xFFFFFF, 10);
 
 function toggleAnimation() {
     isAnimating = !isAnimating;
@@ -165,6 +140,7 @@ export function init(button) {
     scene.add(MinusZeichen);
     scene.add(gridhelper);
     scene.add(elektronenkanonemesh);
+    scene.add(lightning);
 
     for (let i = -7; i < 4; i++) {
         const arrowdirection = new THREE.Vector3(); //upwards
@@ -175,7 +151,7 @@ export function init(button) {
         const arrowhelper = new THREE.ArrowHelper(arrowdirection, arroworigin, arrowlength, arrowcolor, arrowheadlength);
         arrowhelper.position.x = i + 2;
 
-        if (showarrows == true) {
+        if (showarrows === true) {
             scene.add(arrowhelper);
             console.log("arrows are enabled");
         } else {
@@ -231,7 +207,7 @@ export function init(button) {
 
 
 
-const elektronradius = 2;
+const elektronradius = 0.2;
 const elektron = new THREE.SphereGeometry(elektronradius);
 const elektronmesh = new THREE.Mesh(
     elektron,
@@ -239,19 +215,27 @@ const elektronmesh = new THREE.Mesh(
 );
 elektronmesh.position.setX(-8); //approx position of the elektronenekanone
 
+function calculateacceleration() {
 
-const elektronvelocity = new THREE.Vector3(5, 0, 0);
+    const efieldacceleration = new THREE.Vector3(0, (q * efieldstrenght) / elektronmass, 0);
+    const bfieldacceleration = new THREE.Vector3(0, -1 * (q * initialspeed.x * bfieldstrenght) / elektronmass, 0);
+
+    console.log("fieldsacceleration", efieldacceleration, bfieldacceleration);
+
+    const totalAcceleration = new THREE.Vector3().addVectors(efieldacceleration, bfieldacceleration);
+
+
+    return totalAcceleration;
+}
+
+//const elektronvelocity = new THREE.Vector3(5, 0, 0); why do we even need this? Just use initialspeed or am i dumb 
 
 function applyforce(){
     const totalacc = calculateacceleration();
-    console.log("total", totalacc);
-
-    elektronvelocity.addScaledVector(totalacc, dt);
-    elektronmesh.position.addScaledVector(elektronvelocity, dt);
-    console.log(elektronmesh.position.x);
-    console.log("velocity",elektronvelocity);
 
 
+    initialspeed.addScaledVector(totalacc, dt);
+    elektronmesh.position.addScaledVector(initialspeed, dt);
 }
 
 function animate() {
