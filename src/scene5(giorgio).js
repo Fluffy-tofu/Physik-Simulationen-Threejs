@@ -1,4 +1,3 @@
-import { ThemeContext } from '@emotion/react';
 import './style.css'
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
@@ -14,15 +13,16 @@ const gravity = new THREE.Vector3(0, -9.81, 0);
 const dt = 0.016;
 
 const elektronmass = 1;
-const C = 1.602176634e-19;  // Coulomb
-const elektroncharge = -100000;
-const q = elektroncharge * C;
+const multiplier = 1000000;
+const C = 1.602176634e-19 * multiplier;  // Coulomb
+const elektroncharge = -1;
+const q = (elektroncharge * C)*multiplier;
 console.log(q);
-const bfieldstrenght = 10000000000000; //Tesla
-const efieldstrenght = 100000000000000; // V/m
+const bfieldstrenght = 95*multiplier; //Tesla
+const efieldstrenght = 1000*multiplier; // V/m
 const selectedspeed = 10;
 const initialspeed = new THREE.Vector3(selectedspeed,0,0);
-//B_feld speed
+//B_feld speed 
 const lorentzkraft = new THREE.Vector3(0, q*initialspeed.x*bfieldstrenght, 0);
 
 console.log("lorenzkraft:");
@@ -149,9 +149,9 @@ export function init(button) {
     renderer.setSize(window.innerWidth, window.innerHeight);
     
     // Adjust camera position for better view
-    camera.position.setZ(20);
+    camera.position.setZ(50);
     camera.position.setY(10);
-    camera.position.setX(-10);
+    camera.position.setX(-20);
 
     // Add all objects to scene
     scene.add(postiveMagnet);
@@ -226,7 +226,7 @@ export function init(button) {
 
 
 
-const elektronradius = 10;
+const elektronradius = 2;
 const elektron = new THREE.SphereGeometry(elektronradius);
 const elektronmesh = new THREE.Mesh(
     elektron,
