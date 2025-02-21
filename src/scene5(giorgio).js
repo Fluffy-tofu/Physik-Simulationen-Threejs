@@ -18,26 +18,31 @@ const C = 1.602176634e-19 * multiplier;  // Coulomb
 const elektroncharge = -1;
 const q = (elektroncharge * C)*multiplier;
 console.log(q);
-const bfieldstrenght = 95*multiplier; //Tesla
-const efieldstrenght = 1000*multiplier; // V/m
-const selectedspeed = 10;
+const bfieldstrenght = 2*multiplier; //Tesla
+const efieldstrenght = 5*multiplier; // V/m
+const selectedspeed = 5;
 const initialspeed = new THREE.Vector3(selectedspeed,0,0);
-//B_feld speed 
-const lorentzkraft = new THREE.Vector3(0, q*initialspeed.x*bfieldstrenght, 0);
+//B_feld speed
+//const lorentzkraft = new THREE.Vector3(0, q*initialspeed.x*bfieldstrenght, 0);
 
-console.log("lorenzkraft:");
-console.log(lorentzkraft);
 
 //E-Feld speed
-const elektrischekraft = new THREE.Vector3(0, -1*(q*efieldstrenght), 0);
-console.log("elktrischekraft:");
-console.log(elektrischekraft);
+//const elektrischekraft = new THREE.Vector3(0, -1*(q*efieldstrenght), 0);
 
-//function calculateacceleration() {
 
-    //const efieldacceratoin = THREE.Vector3(0, (q * efieldstrenght)/elektronmass, 0);
-    //const accelerationsmth2 = THREE.Vector3(0, -1 * (q * initialspeed.x * bfieldstrenght)/elektronmass, 0);
-//}
+function calculateacceleration() {
+
+    const efieldacceleration = new THREE.Vector3(0, (q * efieldstrenght) / elektronmass, 0);
+    const bfieldacceleration = new THREE.Vector3(0, -1 * (q * initialspeed.x * bfieldstrenght) / elektronmass, 0);
+
+    console.log("fieldsacc", efieldacceleration, bfieldacceleration);
+
+    const totalAcceleration = new THREE.Vector3().addVectors(efieldacceleration, bfieldacceleration);
+    console.log("bitte nicht null", totalAcceleration);
+
+    return totalAcceleration;
+}
+
 
 
 //for future toggles
@@ -54,14 +59,14 @@ const Magnets = new THREE.BoxGeometry(10, 1, 1)
 
 //red magnet
 const Redmaterial = new THREE.MeshBasicMaterial({
-  color: 0xFF0000 
+    color: 0xFF0000
 });
 const postiveMagnet = new THREE.Mesh(Magnets, Redmaterial);
 postiveMagnet.position.setY(-5)
 
 //green magnet
 const Greenmaterial = new THREE.MeshBasicMaterial({
-  color: 0x00FF00
+    color: 0x00FF00
 });
 const negativeMagnet = new THREE.Mesh(Magnets, Greenmaterial);
 negativeMagnet.position.setY(5)
@@ -71,7 +76,7 @@ const WaagerechterStrich = new THREE.BoxGeometry(0.9, 0.1, 1.1);
 const SenkrechterStrich = new THREE.BoxGeometry(0.1, 0.9, 1.1);
 
 const WhiteMaterial = new THREE.MeshBasicMaterial({
-  color: 0xffffff
+    color: 0xffffff
 });
 
 //Meshes machen um sie groupen zu können
@@ -137,7 +142,7 @@ function handleKeyPress(event) {
 
 export function init(button) {
     animationButton = button; // Store button reference
-    
+
     // Scene setup
     scene = new THREE.Scene();
     camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
@@ -147,7 +152,7 @@ export function init(button) {
 
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
-    
+
     // Adjust camera position for better view
     camera.position.setZ(50);
     camera.position.setY(10);
@@ -169,7 +174,7 @@ export function init(button) {
         const arrowheadlength = 1.5;
         const arrowhelper = new THREE.ArrowHelper(arrowdirection, arroworigin, arrowlength, arrowcolor, arrowheadlength);
         arrowhelper.position.x = i + 2;
-    
+
         if (showarrows == true) {
             scene.add(arrowhelper);
             console.log("arrows are enabled");
@@ -185,7 +190,7 @@ export function init(button) {
             const efliedouterradius = efliedinnerradius + 0.05;
             const efieldsegments = 32;
             const efield = new THREE.RingGeometry(efliedinnerradius, efliedouterradius, efieldsegments);
-            
+
             const efliedinnterpoint = new THREE.CircleGeometry(efliedinnerradius/4);
             const efieldmesh = new THREE.Mesh(efield);
             const efieldinnerpointmesh = new THREE.Mesh(efliedinnterpoint);
@@ -193,7 +198,7 @@ export function init(button) {
             const completeefield = new THREE.Group();
             completeefield.add(efieldmesh);
             completeefield.add(efieldinnerpointmesh);
-            
+
             completeefield.position.x = i + 2;
             completeefield.position.y = y + 2;
             //Philip help how tf do i make it go in both x and y without makeing a whole new one??
@@ -205,7 +210,7 @@ export function init(button) {
     }
 
     //elektronen versuchen zu machen
-    
+
 
 
 
@@ -219,7 +224,7 @@ export function init(button) {
 
     // Setup animation toggle via button
     button.addEventListener('click', toggleAnimation);
-    
+
     // Setup animation toggle via spacebar
     document.addEventListener('keydown', handleKeyPress);
 }
@@ -235,22 +240,26 @@ const elektronmesh = new THREE.Mesh(
 elektronmesh.position.setX(-8); //approx position of the elektronenekanone
 
 
-const elektronvelocity = new THREE.Vector3(0, 0, 0);
+const elektronvelocity = new THREE.Vector3(5, 0, 0);
+
+function applyforce(){
+    const totalacc = calculateacceleration();
+    console.log("total", totalacc);
+
+    elektronvelocity.addScaledVector(totalacc, dt);
+    elektronmesh.position.addScaledVector(elektronvelocity, dt);
+    console.log(elektronmesh.position.x);
+    console.log("velocity",elektronvelocity);
+
+
+}
 
 function animate() {
     if (!isAnimating) return;
 
     requestAnimationFrame(animate);
 
-    // Update velocity with gravity
-    elektronvelocity.add(gravity.clone().multiplyScalar(dt));
-    elektronvelocity.add(initialspeed.clone().multiplyScalar(dt));
-    elektronvelocity.add(lorentzkraft.clone().multiplyScalar(dt));
-    elektronvelocity.add(elektrischekraft.clone().multiplyScalar(dt));
-
-
-    // Update position using velocity
-    elektronmesh.position.add(elektronvelocity.clone().multiplyScalar(dt));
+    applyforce();
 
     // Update visibility
     elektronmesh.visible = showelektrons;
