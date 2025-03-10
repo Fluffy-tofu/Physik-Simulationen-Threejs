@@ -67,7 +67,6 @@ class HallEffectSimulation {
 
         // Init
         this.init();
-        this.createHallVoltageVisualization();
     }
 
     init() {
@@ -412,67 +411,6 @@ class HallEffectSimulation {
         }
     }
 
-
-    createHallVoltageVisualization() {
-        const arrowLength = this.CONDUCTOR_WIDTH;
-        const arrowOffset = 0.2;
-
-        // Create arrows for both sides of the conductor
-        // Arrows on positive Z side (pointing to -Z direction)
-        const topArrowPosZ = new THREE.ArrowHelper(
-            new THREE.Vector3(0, 0, -1),
-            new THREE.Vector3(0, this.CONDUCTOR_HEIGHT / 2 + arrowOffset, this.CONDUCTOR_WIDTH / 2),
-            arrowLength,
-            0xffff00,
-            0.2,
-            0.15
-        );
-        topArrowPosZ.line.material.linewidth = 3;
-        this.scene.add(topArrowPosZ);
-        
-        const bottomArrowPosZ = new THREE.ArrowHelper(
-            new THREE.Vector3(0, 0, -1),
-            new THREE.Vector3(0, -this.CONDUCTOR_HEIGHT / 2 - arrowOffset, this.CONDUCTOR_WIDTH / 2),
-            arrowLength,
-            0xffff00,
-            0.2,
-            0.15
-        );
-        bottomArrowPosZ.line.material.linewidth = 3;
-        this.scene.add(bottomArrowPosZ);
-
-        // Arrows on negative Z side (pointing to +Z direction)
-        const topArrowNegZ = new THREE.ArrowHelper(
-            new THREE.Vector3(0, 0, 1),
-            new THREE.Vector3(0, this.CONDUCTOR_HEIGHT / 2 + arrowOffset, -this.CONDUCTOR_WIDTH / 2),
-            arrowLength,
-            0xffff00,
-            0.2,
-            0.15
-        );
-        topArrowNegZ.line.material.linewidth = 3;
-        this.scene.add(topArrowNegZ);
-        
-        const bottomArrowNegZ = new THREE.ArrowHelper(
-            new THREE.Vector3(0, 0, 1),
-            new THREE.Vector3(0, -this.CONDUCTOR_HEIGHT / 2 - arrowOffset, -this.CONDUCTOR_WIDTH / 2),
-            arrowLength,
-            0xffff00,
-            0.2,
-            0.15
-        );
-        bottomArrowNegZ.line.material.linewidth = 3;
-        this.scene.add(bottomArrowNegZ);
-
-        // Store all arrows with their positions for easier reference
-        this.hallVoltageArrows = [
-            { arrow: topArrowPosZ, side: "posZ" },
-            { arrow: bottomArrowPosZ, side: "posZ" },
-            { arrow: topArrowNegZ, side: "negZ" },
-            { arrow: bottomArrowNegZ, side: "negZ" }
-        ];
-    }
-
     isInMagneticField(position) {
         return (
             position.x >= this.MAGNETIC_FIELD_BOUNDS.minX &&
@@ -525,7 +463,6 @@ class HallEffectSimulation {
 
         return hallVoltage;
     }
-
 
     getCurrentValue() {
         const slider = document.getElementById("current");
@@ -592,7 +529,7 @@ class HallEffectSimulation {
         if (pauseBtn) {
             pauseBtn.addEventListener("click", () => {
                 this.isPaused = !this.isPaused;
-                pauseBtn.textContent = this.isPaused ? "Fortsetzen" : "Pause";
+                pauseBtn.textContent = this.isPaused ? "Play " : "Pause";
             });
         }
 
@@ -643,7 +580,6 @@ class HallEffectSimulation {
             }
         });
     }
-
 
     displayElectronInfo(electron) {
         const info = document.getElementById("electronInfo");
