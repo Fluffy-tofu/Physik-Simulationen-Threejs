@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Hall-Effekt Simulation</title>
+    <!-- Add MathJax script -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+        canvas {
+            display: block;
+        }
+        #info-container {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 270px; /* Slightly wider to accommodate the formula */
+        }
+        #info {
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        /* Updated legend background */
+        #legend {
+            background: rgba(0,0,0,0.7);
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 5px;
+            color: white;
+        }
+        #legend h4 {
+            margin: 0 0 10px 0;
+        }
+        #controls {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 300px;
+        }
+        .control-panel {
+            background: rgba(0,0,0,0.7);
+            padding: 15px;
+            color: white;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        .button-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        /* Updated explanation panel background */
+        .explanation-panel {
+            background: rgba(0,0,0,0.7);
+            padding: 15px;
+            border-radius: 5px;
+            display: none;
+            margin-top: 10px;
+            max-height: 400px;
+            overflow-y: auto;
+            color: white;
+        }
+        button {
+            margin: 5px;
+            padding: 5px 10px;
+            border-radius: 3px;
+            border: none;
+            background: #4CAF50;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        .slider-container {
+            margin: 10px 0;
+        }
+        input[type="range"] {
+            width: 100%;
+        }
+        #explanation-toggle, #tutorialBtn {
+            width: 100%;
+            margin: 10px 0;
+            padding: 8px;
+        }
+        #explanation-toggle {
+            background: #2196F3;
+        }
+        #explanation-toggle:hover {
+            background: #1976D2;
+        }
+        #tutorialBtn {
+            background: #FF9800;
+        }
+        #tutorialBtn:hover {
+            background: #F57C00;
+        }
+        .arrow-legend {
+            display: flex;
+            align-items: center;
+            margin: 5px 0;
+        }
+        .arrow-color {
+            width: 20px;
+            height: 3px;
+            margin-right: 10px;
+        }
+        .red { background-color: red; }
+        .green { background-color: green; }
+        .blue { background-color: blue; }
+        .yellow { background-color: yellow; }
+        .material-select {
+            width: 100%;
+            padding: 5px;
+            margin: 5px 0;
+            background: #333;
+            color: white;
+            border: 1px solid #555;
+            border-radius: 3px;
+        }
+        .formula {
+            background: rgba(255,255,255,0.9);
+            padding: 10px 5px;
+            margin-top: 8px;
+            border-radius: 5px;
+            font-family: "Times New Roman", serif;
+            font-size: 1.2em;
+            color: black;
+            border: 1px solid #ccc;
+            text-align: center;
+            line-height: 1.3;
+            overflow: hidden; /* Ensure no scrolling */
+        }
+        /* Specific styling for electron formulas */
+        .electron-formula {
+            margin-top: 5px !important;
+            padding: 5px !important;
+        }
+    </style>
+</head>
+<body>
+<div id="info-container">
+    <div id="info">
+        <h3>Hall-Effekt Simulation</h3>
+        <div id="electronInfo">Klicken Sie auf ein Elektron für Details</div>
+        <div class="formula" style="margin-top: 15px;">
+            \(U_H = R_H \cdot \frac{I \cdot B}{d}\)
+        </div>
+    </div>
+    <div id="legend">
+        <h4>Legende:</h4>
+        <div class="arrow-legend">
+            <div class="arrow-color red"></div>
+            <span>I (Stromrichtung)</span>
+        </div>
+        <div class="arrow-legend">
+            <div class="arrow-color green"></div>
+            <span>B (Magnetfeld)</span>
+        </div>
+        <div class="arrow-legend">
+            <div class="arrow-color blue"></div>
+            <span>FL (Lorentzkraft)</span>
+        </div>
+        <div class="arrow-legend">
+            <div class="arrow-color yellow"></div>
+            <span>UH (Hall-Spannung)</span>
+        </div>
+        <div class="arrow-legend">
+            <span>+ / - (Pole)</span>
+        </div>
+    </div>
+</div>
+<div id="controls">
+    <div class="control-panel">
+        <div class="button-container">
+            <button id="pauseBtn">Pause</button>
+            <button id="resetBtn">Reset</button>
+        </div>
+        <div class="slider-container">
+            <label for="magneticField">B-Feld Stärke:</label>
+            <input type="range" id="magneticField" min="0" max="100" value="50" title="Bewegt den Magnetfeldstärke-Regler">
+        </div>
+        <div class="slider-container">
+            <label for="current">Stromstärke (I):</label>
+            <input type="range" id="current" min="0" max="100" value="50" title="Bewegt den Stromstärke-Regler">
+        </div>
+        <div class="slider-container">
+            <label for="materialSelect">Material (RH in 10⁻¹¹ m³/C):</label>
+            <select id="materialSelect" class="material-select" title="Wählt das Material, das den Hall-Koeffizienten bestimmt">
+                <option value="-3.5">Aluminium (-3.5)</option>
+                <option value="-6.0">Bismut (≈-6.0)</option>
+                <option value="0.9">Blei (+0.9)</option>
+                <option value="5.0">Cadmium (+5.0)</option>
+                <option value="-7.2">Gold (-7.2)</option>
+                <option value="-5.3">Kupfer (-5.3)</option>
+                <option value="-8.6">Palladium (-8.6)</option>
+                <option value="-2.0">Platin (-2.0)</option>
+                <option value="-8.9">Silber (-8.9)</option>
+                <option value="11.8">Wolfram (+11.8)</option>
+                <option value="6.4">Zink (+6.4)</option>
+                <option value="-0.3">Zinn (-0.3)</option>
+            </select>
+        </div>
+        <div id="hallVoltage">Hall-Spannung: 0.00 V</div>
+        <button id="explanation-toggle">Erklärung anzeigen/ausblenden</button>
+        <button id="tutorialBtn">Tutorial starten</button>
+    </div>
+    <div id="explanation" class="explanation-panel">
+        <h3>Der Hall-Effekt – Ein detaillierter Überblick</h3>
+        <p>
+            Der Hall-Effekt, entdeckt 1879 von Edwin Hall, beschreibt die Entstehung einer Querspannung in einem stromführenden Leiter, wenn dieser von einem senkrecht dazu stehenden Magnetfeld durchsetzt wird. Aufgrund der Lorentzkraft erfahren die bewegten Ladungsträger (meistens Elektronen) eine seitliche Ablenkung, wodurch sich auf gegenüberliegenden Seiten des Leiters positive und negative Ladungen ansammeln.
+        </p>
+        <h4>Grundlagen des Hall-Effekts:</h4>
+        <ul>
+            <li><strong>Elektrischer Strom (I):</strong> Elektronen fließen durch den Leiter.</li>
+            <li><strong>Magnetfeld (B):</strong> Ein externes Magnetfeld wirkt senkrecht zur Stromrichtung und übt eine Kraft auf die Elektronen aus.</li>
+            <li><strong>Lorentzkraft (F<sub>L</sub>):</strong> Mit $$F_L = q \cdot (\vec{v} \times \vec{B})$$ wird die seitliche Ablenkung der Ladungsträger bewirkt.</li>
+        </ul>
+        <h4>Entstehung der Hall-Spannung:</h4>
+        <p>
+            Die Ablenkung führt dazu, dass sich auf einer Seite des Leiters ein Überschuss an negativen Ladungen (Elektronen) und auf der gegenüberliegenden Seite ein Mangel an Elektronen bildet. Diese Ladungstrennung erzeugt eine Querspannung, die Hall-Spannung (U<sub>H</sub>).
+        </p>
+        <h4>Der Hall-Koeffizient (R<sub>H</sub>):</h4>
+        <p>
+            Der Hall-Koeffizient ist eine materialspezifische Größe, die das Verhalten von Ladungsträgern im Magnetfeld beschreibt. Er wird durch folgende Formel definiert:
+        </p>
+        <p class="formula">
+            $$R_H = \frac{E_y}{j_x \cdot B_z} = \frac{U_H \cdot d}{I \cdot B}$$
+        </p>
+        <p>
+            Wobei:
+        </p>
+        <ul>
+            <li>$$R_H$$: Hall-Koeffizient [m³/C]</li>
+            <li>$$E_y$$: elektrisches Feld in y-Richtung</li>
+            <li>$$j_x$$: Stromdichte in x-Richtung</li>
+            <li>$$B_z$$: Magnetfeldstärke in z-Richtung</li>
+            <li>$$U_H$$: Hall-Spannung</li>
+            <li>$$d$$: Dicke des Leiters</li>
+            <li>$$I$$: Stromstärke</li>
+            <li>$$B$$: Magnetfeldstärke</li>
+        </ul>
+        <p>
+            <strong>Vorzeichen des Hall-Koeffizienten:</strong> Das Vorzeichen von $$R_H$$ gibt Aufschluss über die Art der Ladungsträger:
+        </p>
+        <ul>
+            <li><strong>Negatives $$R_H$$:</strong> Elektronen sind die dominanten Ladungsträger (typisch für Metalle wie Kupfer, Silber)</li>
+            <li><strong>Positives $$R_H$$:</strong> Löcher (positive Ladungsträger) dominieren (manche Halbleiter oder Materialien mit komplexer Bandstruktur wie Zink)</li>
+        </ul>
+        <p>
+            Die Hall-Spannung lässt sich dann aus dem Hall-Koeffizienten berechnen:
+        </p>
+        <p class="formula">
+            $$U_H = R_H \cdot \frac{I \cdot B}{d}$$
+        </p>
+        <h4>Anwendungen:</h4>
+        <p>
+            Hall-Sensoren nutzen diesen Effekt zur berührungslosen Messung von Magnetfeldern, Positionen oder Strömen. Sie finden Verwendung in Smartphones, Automobilen und vielen anderen elektronischen Geräten.
+        </p>
+        <h4>Zusammenfassung:</h4>
+        <p>
+            In dieser Simulation werden der Stromfluss, das Magnetfeld, die durch die Lorentzkraft bewirkte Ablenkung der Elektronen und die daraus resultierende Hall-Spannung visualisiert. Dabei wird auch die Dicke (d) des Leiters berücksichtigt, welche einen direkten Einfluss auf die Spannung hat. Experimentieren Sie mit Stromstärke, Magnetfeldstärke, Materialeigenschaften und Leiterdicke, um den Einfluss auf den Hall-Effekt zu untersuchen.
+        </p>
+    </div>
+</div>
+<script type="module" src="src/js/Nmain.js"></script>
+</body>
+</html>
