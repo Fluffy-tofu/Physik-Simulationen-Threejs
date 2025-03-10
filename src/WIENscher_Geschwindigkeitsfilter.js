@@ -133,13 +133,18 @@ function updateFieldPolarities() {
         // Pfeile neu erstellen (nach unten)
         createArrows(false);
     }
+
+    // E-Feld-Visualisierung aktualisieren
+    createEFieldVisualization();
 }
 
-// E-Feld Visualisierung erstellen - ORIGINAL
+// E-Feld Visualisierung erstellen - VERBESSERT mit Ring-X für negatives E-Feld
 function createEFieldVisualization() {
     // Lösche bestehende Visualisierung
     eFieldVisualization.forEach(obj => scene.remove(obj));
     eFieldVisualization = [];
+
+    const isNegativeField = eFieldStrength < 0;
 
     for (let i = -7; i < 4; i++) {
         for (let y = -6; y < 3; y++) {
@@ -148,13 +153,35 @@ function createEFieldVisualization() {
             const efieldsegments = 32;
             const efield = new THREE.RingGeometry(efliedinnerradius, efliedouterradius, efieldsegments);
 
-            const efliedinnterpoint = new THREE.CircleGeometry(efliedinnerradius/4);
-            const efieldmesh = new THREE.Mesh(efield, new THREE.MeshBasicMaterial({ color: 0xFFFFFF }));
-            const efieldinnerpointmesh = new THREE.Mesh(efliedinnterpoint, new THREE.MeshBasicMaterial({ color: 0xFFFFFF }));
-
             const completeefield = new THREE.Group();
+
+            // Ring erstellen
+            const efieldmesh = new THREE.Mesh(efield, new THREE.MeshBasicMaterial({ color: 0xFFFFFF }));
             completeefield.add(efieldmesh);
-            completeefield.add(efieldinnerpointmesh);
+
+            if (isNegativeField) {
+                // X erstellen für negatives E-Feld
+                const crossSize = efliedinnerradius * 0.8;
+                const crossThickness = 0.03;
+
+                // Erster Strich des X
+                const line1Geo = new THREE.BoxGeometry(crossSize, crossThickness, 0.01);
+                const line1Mesh = new THREE.Mesh(line1Geo, new THREE.MeshBasicMaterial({ color: 0xFFFFFF }));
+                line1Mesh.rotation.z = Math.PI / 4; // 45 Grad
+
+                // Zweiter Strich des X
+                const line2Geo = new THREE.BoxGeometry(crossSize, crossThickness, 0.01);
+                const line2Mesh = new THREE.Mesh(line2Geo, new THREE.MeshBasicMaterial({ color: 0xFFFFFF }));
+                line2Mesh.rotation.z = -Math.PI / 4; // -45 Grad
+
+                completeefield.add(line1Mesh);
+                completeefield.add(line2Mesh);
+            } else {
+                // Punkt erstellen für positives E-Feld
+                const efliedinnterpoint = new THREE.CircleGeometry(efliedinnerradius/4);
+                const efieldinnerpointmesh = new THREE.Mesh(efliedinnterpoint, new THREE.MeshBasicMaterial({ color: 0xFFFFFF }));
+                completeefield.add(efieldinnerpointmesh);
+            }
 
             completeefield.position.x = i + 2;
             completeefield.position.y = y + 2;
@@ -245,6 +272,12 @@ function updateUI() {
     document.getElementById('speedValue').textContent = particleSpeed.toFixed(2);
     document.getElementById('chargeValue').textContent = particleCharge.toFixed(2);
 
+    // Eingabefelder aktualisieren
+    document.getElementById('eFieldInput').value = eFieldStrength;
+    document.getElementById('bFieldInput').value = bFieldStrength;
+    document.getElementById('speedInput').value = particleSpeed;
+    document.getElementById('chargeInput').value = particleCharge;
+
     const idealVelocity = Math.abs(eFieldStrength / bFieldStrength);
     document.getElementById('idealVelocityValue').textContent = idealVelocity.toFixed(2);
 
@@ -254,8 +287,8 @@ function updateUI() {
 }
 
 function calculateAcceleration() {
-    // SUPER STARK SKALIERTE KRÄFTE für sichtbare Effekte
-    const FORCE_SCALE = 2.0; // Einfachheithalber direkt hier einstellen
+    // SKALIERTE KRÄFTE für sichtbare Effekte
+    const FORCE_SCALE = 2.0; // Original-Multiplikator beibehalten
 
     // E-Feld Kraft: F = qE
     const eAcc = new THREE.Vector3(0, eFieldStrength * particleCharge * FORCE_SCALE, 0);
@@ -302,29 +335,49 @@ function createUI() {
     uiContainer.style.color = 'white';
     uiContainer.style.fontFamily = 'Arial, sans-serif';
     uiContainer.style.zIndex = '1000';
-    uiContainer.style.width = '300px';
+    uiContainer.style.width = '340px';
 
     uiContainer.innerHTML = `
         <h2 style="text-align: center; margin-top: 0;">Geschwindigkeitsfilter</h2>
         
-        <div style="margin-bottom: 15px;">
-            <label for="eFieldSlider">E-Feld Stärke: <span id="eFieldValue">5.00</span></label>
-            <input type="range" id="eFieldSlider" min="-10" max="10" step="0.5" value="5" style="width: 100%;">
+        <div style="margin-bottom: 15px; display: flex; align-items: center;">
+            <div style="flex: 4;">
+                <label for="eFieldSlider">E-Feld Stärke: <span id="eFieldValue">5.00</span></label>
+                <input type="range" id="eFieldSlider" min="-15" max="15" step="0.5" value="5" style="width: 100%;">
+            </div>
+            <div style="flex: 1; margin-left: 10px;">
+                <input type="number" id="eFieldInput" value="5" step="any" style="width: 100%;">
+            </div>
         </div>
         
-        <div style="margin-bottom: 15px;">
-            <label for="bFieldSlider">B-Feld Stärke: <span id="bFieldValue">2.00</span></label>
-            <input type="range" id="bFieldSlider" min="-10" max="10" step="0.5" value="2" style="width: 100%;">
+        <div style="margin-bottom: 15px; display: flex; align-items: center;">
+            <div style="flex: 4;">
+                <label for="bFieldSlider">B-Feld Stärke: <span id="bFieldValue">2.00</span></label>
+                <input type="range" id="bFieldSlider" min="-15" max="15" step="0.5" value="2" style="width: 100%;">
+            </div>
+            <div style="flex: 1; margin-left: 10px;">
+                <input type="number" id="bFieldInput" value="2" step="any" style="width: 100%;">
+            </div>
         </div>
         
-        <div style="margin-bottom: 15px;">
-            <label for="speedSlider">Geschwindigkeit: <span id="speedValue">5.00</span></label>
-            <input type="range" id="speedSlider" min="0.5" max="10" step="0.5" value="5" style="width: 100%;">
+        <div style="margin-bottom: 15px; display: flex; align-items: center;">
+            <div style="flex: 4;">
+                <label for="speedSlider">Geschwindigkeit: <span id="speedValue">5.00</span></label>
+                <input type="range" id="speedSlider" min="0.5" max="15" step="0.5" value="5" style="width: 100%;">
+            </div>
+            <div style="flex: 1; margin-left: 10px;">
+                <input type="number" id="speedInput" value="5" step="any" min="0" style="width: 100%;">
+            </div>
         </div>
         
-        <div style="margin-bottom: 15px;">
-            <label for="chargeSlider">Ladung: <span id="chargeValue">-1.00</span></label>
-            <input type="range" id="chargeSlider" min="-2" max="2" step="0.5" value="-1" style="width: 100%;">
+        <div style="margin-bottom: 15px; display: flex; align-items: center;">
+            <div style="flex: 4;">
+                <label for="chargeSlider">Ladung: <span id="chargeValue">-1.00</span></label>
+                <input type="range" id="chargeSlider" min="-3" max="3" step="0.5" value="-1" style="width: 100%;">
+            </div>
+            <div style="flex: 1; margin-left: 10px;">
+                <input type="number" id="chargeInput" value="-1" step="any" style="width: 100%;">
+            </div>
         </div>
         
         <div style="border: 1px solid white; padding: 8px; margin-bottom: 15px; text-align: center;">
@@ -366,8 +419,29 @@ function createUI() {
         resetParticle();
     });
 
+    document.getElementById('eFieldInput').addEventListener('change', function(e) {
+        eFieldStrength = parseFloat(e.target.value);
+        // Nur den Slider aktualisieren, wenn der Wert innerhalb des Bereichs liegt
+        if (eFieldStrength >= -15 && eFieldStrength <= 15) {
+            document.getElementById('eFieldSlider').value = eFieldStrength;
+        }
+        updateUI();
+        updateFieldPolarities();
+        resetParticle();
+    });
+
     document.getElementById('bFieldSlider').addEventListener('input', function(e) {
         bFieldStrength = parseFloat(e.target.value);
+        updateUI();
+        resetParticle();
+    });
+
+    document.getElementById('bFieldInput').addEventListener('change', function(e) {
+        bFieldStrength = parseFloat(e.target.value);
+        // Nur den Slider aktualisieren, wenn der Wert innerhalb des Bereichs liegt
+        if (bFieldStrength >= -15 && bFieldStrength <= 15) {
+            document.getElementById('bFieldSlider').value = bFieldStrength;
+        }
         updateUI();
         resetParticle();
     });
@@ -378,8 +452,28 @@ function createUI() {
         resetParticle();
     });
 
+    document.getElementById('speedInput').addEventListener('change', function(e) {
+        particleSpeed = parseFloat(e.target.value);
+        // Nur den Slider aktualisieren, wenn der Wert innerhalb des Bereichs liegt
+        if (particleSpeed >= 0.5 && particleSpeed <= 15) {
+            document.getElementById('speedSlider').value = particleSpeed;
+        }
+        updateUI();
+        resetParticle();
+    });
+
     document.getElementById('chargeSlider').addEventListener('input', function(e) {
         particleCharge = parseFloat(e.target.value);
+        updateUI();
+        resetParticle();
+    });
+
+    document.getElementById('chargeInput').addEventListener('change', function(e) {
+        particleCharge = parseFloat(e.target.value);
+        // Nur den Slider aktualisieren, wenn der Wert innerhalb des Bereichs liegt
+        if (particleCharge >= -3 && particleCharge <= 3) {
+            document.getElementById('chargeSlider').value = particleCharge;
+        }
         updateUI();
         resetParticle();
     });
@@ -431,7 +525,7 @@ function animate() {
     updateUI();
 
     // Zurücksetzen, wenn das Teilchen zu weit entfernt ist
-    if (Math.abs(elektronmesh.position.x) > 25 ||
+    if (Math.abs(elektronmesh.position.x) > 8 ||
         Math.abs(elektronmesh.position.y) > 25 ||
         Math.abs(elektronmesh.position.z) > 25) {
         resetParticle();
