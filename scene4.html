@@ -4,8 +4,25 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Three.js Scene</title>
+    <title>Cyclotron Simulation</title>
+    <!-- Try a different CDN for MathJax -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script>
     <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+        }
+
+        #bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
         .control-button {
             position: fixed;
             z-index: 100;
@@ -17,14 +34,263 @@
             cursor: pointer;
             transition: background 0.3s;
         }
+
         .control-button:hover {
             background: #444;
+        }
+
+        #stats-display {
+            position: absolute;
+            top: 70px;
+            left: 20px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 14px;
+            z-index: 1000;
+        }
+
+        #stats-display h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+            padding-bottom: 5px;
+        }
+
+        #stats-display table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        #stats-display td {
+            padding: 3px 0;
+        }
+
+        #stats-display td:first-child {
+            font-weight: bold;
+            padding-right: 10px;
+        }
+
+        /* Controls panel */
+        #controls-panel {
+            position: absolute;
+            top: 70px;
+            right: 20px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            z-index: 1000;
+            width: 250px;
+        }
+
+        #controls-panel h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+            padding-bottom: 5px;
+        }
+
+        .control-group {
+            margin-bottom: 15px;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .control-group input[type="range"] {
+            width: 100%;
+        }
+
+        .control-group .value-display {
+            display: inline-block;
+            width: 40px;
+            text-align: right;
+            margin-left: 10px;
+        }
+
+        .button-row {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+
+        .panel-button {
+            background: #555;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+
+        .panel-button:hover {
+            background: #666;
+        }
+
+        /* German formulas dropdown styles */
+        #formulas-container {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            max-width: 500px;
+            z-index: 1000;
+        }
+
+        #formulas-toggle {
+            background-color: #555;
+            border: none;
+            color: white;
+            padding: 5px 10px;
+            text-align: center;
+            text-decoration: none;
+            display: block;
+            width: 100%;
+            font-size: 14px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        #formulas-toggle:hover {
+            background-color: #666;
+        }
+
+        #formulas-content {
+            display: none;
+            margin-top: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        #formulas-content h3 {
+            margin-top: 0;
+            font-size: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+            padding-bottom: 5px;
+        }
+
+        #formulas-content h4 {
+            margin-top: 10px;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        #formulas-content ul, #formulas-content ol {
+            padding-left: 20px;
+            margin-top: 5px;
+            margin-bottom: 5px;
+        }
+
+        #formulas-content li {
+            margin-bottom: 3px;
+        }
+
+        #formulas-content p {
+            margin-top: 5px;
+            margin-bottom: 5px;
         }
     </style>
 </head>
 <body>
 <button id="startButton" class="control-button" style="top: 20px; left: 20px;">Start Animation</button>
 <a href="index.html" class="control-button" style="top: 20px; right: 20px; text-decoration: none;">Back to Menu</a>
+
+<!-- Stats Display -->
+<div id="stats-display">
+    <h3>Cyclotron Data</h3>
+    <table>
+        <tr><td>Velocity:</td><td id="velocity-value">0.00 units/s</td></tr>
+        <tr><td>Radius:</td><td id="radius-value">0.00 units</td></tr>
+        <tr><td>Energy:</td><td id="energy-value">0.00 units</td></tr>
+        <tr><td>Frequency:</td><td id="frequency-value">0.00 Hz</td></tr>
+        <tr><td>Time:</td><td id="time-value">0.00 s</td></tr>
+        <tr><td>Status:</td><td id="status">Ready</td></tr>
+    </table>
+</div>
+
+<!-- Controls Panel -->
+<div id="controls-panel">
+    <h3>Simulation Controls</h3>
+    <div class="control-group">
+        <label for="mass-slider">Particle Mass: <span id="mass-value" class="value-display">1.0</span></label>
+        <input type="range" id="mass-slider" min="0.1" max="5" step="0.1" value="1.0">
+    </div>
+
+    <div class="control-group">
+        <label for="charge-slider">Particle Charge: <span id="charge-value" class="value-display">1.0</span></label>
+        <input type="range" id="charge-slider" min="0.1" max="5" step="0.1" value="1.0">
+    </div>
+
+    <div class="control-group">
+        <label for="magneticfield-slider">Magnetic Field: <span id="magneticfield-value" class="value-display">0.5</span></label>
+        <input type="range" id="magneticfield-slider" min="0.1" max="3" step="0.1" value="0.5">
+    </div>
+
+    <div class="control-group">
+        <!-- Changed from Electric Potential to Voltage -->
+        <label for="voltage-slider">Voltage: <span id="voltage-value" class="value-display">3.0</span></label>
+        <input type="range" id="voltage-slider" min="0.5" max="10" step="0.1" value="3.0">
+    </div>
+
+    <div class="control-group">
+        <label for="speed-slider">Initial Speed: <span id="speed-value" class="value-display">3.0</span></label>
+        <input type="range" id="speed-slider" min="0.1" max="5" step="0.1" value="3.0">
+    </div>
+
+    <div class="control-group">
+        <label for="deesradius-slider">Dees Size: <span id="deesradius-value" class="value-display">30</span></label>
+        <input type="range" id="deesradius-slider" min="10" max="50" step="1" value="30">
+    </div>
+
+    <div class="button-row">
+        <button id="reset-button" class="panel-button">Reset</button>
+    </div>
+</div>
+
+<!-- German Formulas Dropdown using ordinary button and div -->
+<div id="formulas-container">
+    <button id="formulas-toggle">Formeln anzeigen ▼</button>
+    <div id="formulas-content">
+        <h3>Physikalische Formeln des Zyklotrons</h3>
+
+        <h4>Grundlegende Formeln:</h4>
+        <ul>
+            <li><strong>Lorentz-Kraft:</strong> $$\vec{F} = q(\vec{v} \times \vec{B})$$</li>
+            <li><strong>Zyklotronfrequenz:</strong> $$f = \frac{qB}{2\pi m}$$</li>
+            <li><strong>Kreisbahnradius:</strong> $$r = \frac{mv}{qB}$$</li>
+            <li><strong>Kinetische Energie:</strong> $$E_{kin} = \frac{1}{2}mv^2$$</li>
+            <li><strong>Energiegewinn pro Lückenüberquerung:</strong> $$\Delta E = q \cdot U$$</li>
+        </ul>
+
+        <h4>Geschwindigkeitsberechnung:</h4>
+        <p>Nach dem Durchqueren der Lücke wird die neue Geschwindigkeit wie folgt berechnet:</p>
+        <ol>
+            <li>Aktuelle kinetische Energie: $$E_{kin} = \frac{1}{2}mv^2$$</li>
+            <li>Energiegewinn: $$\Delta E = q \cdot U$$</li>
+            <li>Neue kinetische Energie: $$E_{kin,neu} = E_{kin} + \Delta E$$</li>
+            <li>Neue Geschwindigkeit: $$v_{neu} = \sqrt{\frac{2 \cdot E_{kin,neu}}{m}}$$</li>
+        </ol>
+
+        <h4>Teilchenbahn:</h4>
+        <p>Die Teilchenbahn im Zyklotron besteht aus Halbkreisen mit zunehmendem Radius, da das Teilchen bei jedem Durchgang durch die Lücke an Geschwindigkeit gewinnt. Der theoretische Radius für eine bestimmte Geschwindigkeit beträgt:</p>
+        <p>$$r = \frac{mv}{qB}$$</p>
+
+        <h4>Extraktionsphysik:</h4>
+        <p>Wenn das Teilchen den Radius der Dees erreicht, wird es entweder extrahiert (wenn es sich am Extraktionswinkel befindet) oder reflektiert (wenn es auf die Dee-Wand trifft).</p>
+    </div>
+</div>
+
 <canvas id="bg"></canvas>
 <script type="module">
     import { init } from '/src/scene4.js';
@@ -32,6 +298,16 @@
     document.addEventListener('DOMContentLoaded', () => {
         const button = document.getElementById('startButton');
         init(button);
+
+        // Simpler toggle implementation that should work reliably
+        const formulasToggle = document.getElementById('formulas-toggle');
+        const formulasContent = document.getElementById('formulas-content');
+
+        formulasToggle.addEventListener('click', function() {
+            const isVisible = formulasContent.style.display === 'block';
+            formulasContent.style.display = isVisible ? 'none' : 'block';
+            formulasToggle.textContent = isVisible ? 'Formeln anzeigen ▼' : 'Formeln verbergen ▲';
+        });
     });
 </script>
 </body>
