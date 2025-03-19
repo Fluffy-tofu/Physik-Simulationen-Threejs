@@ -1,1 +1,360 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Massenspektrometer nach Bainbridge</title>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        .control-button {
+            position: fixed;
+            z-index: 100;
+            padding: 10px 20px;
+            background: #333;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .control-button:hover {
+            background: #444;
+            border: white;
+        }
+        #wrapper {
+            transform-origin: 0 0;
+        }
+        #root {
+            width: 1030px;
+            height: auto;
+        }
+        .ms-simulation {
+            position: absolute;
+            margin: 290px 20px 20px 100px;
+            width: 600px;
+            height: 300px;
+            background-color: #eee;
+            top:-20px;
+        }
+        .point {
+            position: absolute;
+            border-radius: 100%;
+            width: 6px;
+            height: 6px;
+            margin: -3px 0 0 -3px;
+        }
+        .blendeOben {
+            top: 0;
+        }
+        .blendeOben,
+        .blendeUnten {
+            position: absolute;
+            right: 0;
+            background-color: #000;
+            width: 3px;
+            height: 145px;
+        }
+        .blendeUnten {
+            bottom: 0;
+        }
+        .kondensator {
+            position: absolute;
+            height: 10px;
+            width: 99%;
+            border: 1px solid;
+        }
+        .kondensatorOben {
+            top: -12px;
+        }
+        .kondensatorUnten {
+            bottom: -12px;
+        }
+        .ionenQuelle {
+            width: 40px;
+            height: 30px;
+            position: absolute;
+            top: 135px;
+            left: -80px;
+            background: grey;
+        }
+        .ionenQuelle .ladung {
+            position: relative;
+            top: 20px;
+            left: -6px;
+        }
+        .ionenQuelle .quelle {
+            position: relative;
+            top: -24px;
+            left: -3px;
+        }
+        .blendeAnalysatorUnten {
+            right: -50px;
+        }
+        .schirm {
+            top: -265px;
+            background-color: brown;
+            width: 3px;
+            height: 410px;
+        }
+        .schirm,
+        .skala {
+            right: -50px;
+            position: absolute;
+        }
+        .skala {
+            top: -260px;
+        }
+        .magnetfeldZeichen {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .magnetfeldZeichen div {
+            background-repeat: no-repeat;
+            background-position: 50%;
+            width: 17px;
+            height: 17px;
+        }
+        .magnetfeldZeichen2 {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .magnetfeldZeichen2 div {
+            background-repeat: no-repeat;
+            background-position: 50%;
+            width: 17px;
+            height: 17px;
+        }
+        .magnetfeldFilter {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .magnetfeldFilter div {
+            background-repeat: no-repeat;
+            background-position: 50%;
+            width: 17px;
+            height: 17px;
+        }
+        .magnetfeldFilter2 {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .magnetfeldFilter2 div {
+            background-repeat: no-repeat;
+            background-position: 50%;
+            width: 17px;
+            height: 17px;
+        }
+        .efeldZeichen {
+            position: absolute;
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .efeldZeichen div,
+        .efeldZeichen img {
+            height: 100%;
+            display: block;
+            float: left;
+        }
+        .efeldZeichen2 {
+            position: absolute;
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .efeldZeichen2 div,
+        .efeldZeichen2 img {
+            height: 100%;
+            display: block;
+            float: left;
+        }
+        .analysator {
+            position: absolute;
+            background-color: #eee;
+            width: 270px;
+            height: 560px;
+            right: -320px;
+            top: -260px;
+            z-index: -1;
+        }
+        .controls {
+            padding-left: 100px;
+            position: absolute;
+            top: 10px;
+            width: 600px;
+            text-align: left;
+        }
+        .controls input,
+        .controls select {
+            font-size: 150%;
+            margin: 5px 10px;
+            padding: 5px 15px;
+            position: relative;
+            top: 10px;
+            cursor: pointer;
+        }
+        h1 {
+            margin: 5px 0;
+        }
+        .settingFilter {
+            position: absolute;
+            top: 600px;
+            left: 300px;
+            text-align: left;
+            width: 280px;
+        }
+        .settingAnalysator {
+            position: absolute;
+            top: 600px;
+            left: 760px;
+            text-align: left;
+            width: 280px;
+        }
+        .setting input {
+            margin: 10px;
+        }
+        .anweisungen {
+            position: absolute;
+            top: 75px;
+            margin: 10px 0;
+            font-size: 110%;
+        }
+        .constants {
+            position: absolute;
+            top: 580px;
+            padding: 25px 35px;
+            text-align: left;
+        }
+        /* Slider styles */
+        input[type=range] {
+            margin: 18px 10px;
+            background-color: transparent;
+            -webkit-appearance: none;
+        }
+        input[type=range]:focus {
+            outline: none;
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            background: #707070;
+            border: 0;
+            border-radius: 4px;
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            margin-top: -13px;
+            width: 20px;
+            height: 30px;
+            background: #00baff;
+            border: 1px solid #000000;
+            border-radius: 3px;
+            cursor: pointer;
+            -webkit-appearance: none;
+        }
+        input[type=range]:focus::-webkit-slider-runnable-track {
+            background: #8f8f8f;
+        }
+        input[type=range]::-moz-range-track {
+            background: #707070;
+            border: 0;
+            border-radius: 4px;
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+        }
+        input[type=range]::-moz-range-thumb {
+            width: 20px;
+            height: 30px;
+            background: #00baff;
+            border: 1px solid #000000;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        input[type=range]::-ms-track {
+            background: transparent;
+            border-color: transparent;
+            border-width: 14px 0;
+            color: transparent;
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+        }
+        
+        #footer {
+            position: absolute;
+            top: 700px;
+            width: 800px;
+            line-height: 1em;
+            z-index: 1;
+        }
+    </style>
+</head>
+<body onload="zoom()" onresize="zoom()">
+    <a href="index.html" class="control-button" style="top: 20px; right: 20px; text-decoration: none;">Back to Menu</a>
+    
+    <div id="wrapper" style="transform-origin: 0 0;">
+        <div id="root" style="width: 1030px; height: auto;">
+            <!-- The simulation will be rendered here by JavaScript -->
+        </div>
+        <div id="footer">
+            <div>
+                <span>Massenspektrometer nach Bainbridge</span>
+            </div>
+        </div>
+    </div>
 
+    <script>
+        window.addEventListener("resize", zoom);
+        function zoom() {
+            var maxWidth = document.getElementById("root").offsetWidth;
+            var width = document.body.clientWidth;
+            var scaleW = width / maxWidth;
+            scale = scaleW;
+            if (width >= maxWidth) {
+                scale = 1;
+                document.getElementById("wrapper").style.transform = "scale(1)";
+                document.getElementById("wrapper").style.WebkitTransform = "scale(1)";
+            } else {
+                document.getElementById("wrapper").style.transform = "scale(" + scale + ")";
+                document.getElementById("wrapper").style.WebkitTransform = "scale(" + scale + ")";
+            }
+        }
+    </script>
+    
+    <script type="module" src="/src/Massenspektrometer.js"></script>
+</body>
+</html>
