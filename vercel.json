@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    { "source": "/scene4", "destination": "/scene4.html" },
+    { "source": "/WIENscher_Geschwindigkeitsfilter", "destination": "/WIENscher_Geschwindigkeitsfilter.html" },
+    { "source": "/Massenspektrometer", "destination": "/Massenspektrometer.html" },
+    { "source": "/Nindex", "destination": "/Nindex.html" }
+  ]
+}
