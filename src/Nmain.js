@@ -1,6 +1,3 @@
-// src/js/main.js
-// noinspection LanguageDetectionInspection
-
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
@@ -44,15 +41,13 @@ class HallEffectSimulation {
             }
         ];
 
-        // Konstanten für die Simulation
         this.CONDUCTOR_LENGTH = 6;
         this.CONDUCTOR_HEIGHT = 0.5;
-        this.CONDUCTOR_WIDTH = 1.5; // 'd' in der Hall-Formel
+        this.CONDUCTOR_WIDTH = 1.5;
         this.ELECTRON_SPEED = 0.03;
         this.ELECTRON_SIZE = 0.125;
         this.ARROW_LENGTH = 0.3;
 
-        // Magnetfeldgrenzen
         this.MAGNETIC_FIELD_BOUNDS = {
             minX: -1.5,
             maxX: 1.5,
@@ -62,43 +57,35 @@ class HallEffectSimulation {
             maxZ: 1.5
         };
 
-        // Pfeile zur Visualisierung der Hall-Spannung
         this.hallVoltageArrows = [];
 
-        // Init
         this.init();
     }
 
     init() {
-        // Renderer
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.renderer.shadowMap.enabled = true;
         document.body.appendChild(this.renderer.domElement);
         this.scene.background = new THREE.Color(0xf5f5dc);
 
-        // Kamera
         this.camera.position.set(5, 5, 10);
         this.camera.lookAt(0, 0, 0);
 
-        // Szenenaufbau
         this.setupLighting();
         this.createConductor();
         this.createMagnet();
         this.createElectrons(15);
         this.createChargeIndicators();
 
-        // Orbit Controls
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);
         this.controls.enableDamping = true;
         this.controls.dampingFactor = 0.05;
 
-        // Event Listeners
         this.setupEventListeners();
         this.setupExplanationPanel();
         this.originalExplanationContent = document.getElementById("explanation").innerHTML;
 
 
-        // Animation
         this.animate();
     }
 
@@ -126,7 +113,6 @@ class HallEffectSimulation {
         this.conductor.receiveShadow = true;
         this.scene.add(this.conductor);
 
-        // Kontakte
         const contactGeometry = new THREE.BoxGeometry(0.2, 0.8, 1.2);
         const contactMaterial = new THREE.MeshPhongMaterial({ color: 0x404040 });
 
@@ -140,7 +126,6 @@ class HallEffectSimulation {
         rightContact.scale.z = 1.5;
         this.scene.add(rightContact);
 
-        // Plus- und Minus-Label
         const addLabel = (text, position) => {
             const canvas = document.createElement("canvas");
             const context = canvas.getContext("2d");
@@ -181,7 +166,6 @@ class HallEffectSimulation {
         const fieldRegion = new THREE.Mesh(fieldGeometry, fieldMaterial);
         this.magnetGroup.add(fieldRegion);
 
-        // Magnetfeldlinien mit 3 Layern in jeder Richtung
         const fieldLineMaterial = new THREE.LineBasicMaterial({
             color: 0x00ff00,
             transparent: true,
@@ -196,7 +180,6 @@ class HallEffectSimulation {
         for (let i = 0; i < layers; i++) {
             for (let j = 0; j < layers; j++) {
                 const points = [];
-                // Calculate centered start positions:
                 const startX = (i - (layers - 1) / 2) * spacing;
                 const startZ = (j - (layers - 1) / 2) * spacing;
 
@@ -221,7 +204,6 @@ class HallEffectSimulation {
         }
 
 
-        // Pole
         const poleGeometry = new THREE.BoxGeometry(1.5, 1, 1.5);
         const southPole = new THREE.Mesh(
             poleGeometry,
@@ -238,7 +220,6 @@ class HallEffectSimulation {
         this.magnetGroup.add(southPole);
         this.magnetGroup.add(northPole);
 
-        // Pole-Labels
         const addLabel = (text, y, color) => {
             const canvas = document.createElement("canvas");
             const context = canvas.getContext("2d");
@@ -271,7 +252,6 @@ class HallEffectSimulation {
             electron.position.x = (Math.random() - 0.5) * (this.CONDUCTOR_LENGTH - 1);
             electron.position.y = 0;
             electron.position.z = (Math.random() - 0.5) * (this.CONDUCTOR_WIDTH - 0.2);
-            // Ausgangsposition speichern
             electron.userData.originalPosition = electron.position.clone();
             electron.castShadow = true;
             this.scene.add(electron);
@@ -315,7 +295,6 @@ class HallEffectSimulation {
     }
 
     createChargeIndicators() {
-        // Boxen für Ladungsüberschuss und -mangel
         const indicatorGeometry = new THREE.BoxGeometry(0.2, this.CONDUCTOR_HEIGHT, 0.3);
 
         const plusMaterial = new THREE.MeshPhongMaterial({
@@ -337,14 +316,12 @@ class HallEffectSimulation {
         this.chargeIndicators.plus = new THREE.Mesh(indicatorGeometry, plusMaterial);
         this.chargeIndicators.minus = new THREE.Mesh(indicatorGeometry, minusMaterial);
 
-        // Positionen: Rot (Elektronenüberschuss) auf der negativen Z-Seite, Blau (Elektronenmangel) auf der positiven
         this.chargeIndicators.plus.position.set(0, 0, -this.CONDUCTOR_WIDTH / 2);
         this.chargeIndicators.minus.position.set(0, 0, this.CONDUCTOR_WIDTH / 2);
 
         this.scene.add(this.chargeIndicators.plus);
         this.scene.add(this.chargeIndicators.minus);
 
-        // Labels für die Indikatoren
         const createLabel = (text, position, color) => {
             const canvas = document.createElement("canvas");
             const context = canvas.getContext("2d");
@@ -393,17 +370,12 @@ class HallEffectSimulation {
 
     updateChargeIndicators() {
         const hallCoefficient = this.getHallCoefficient();
-        // If the material’s Hall coefficient is negative,
-        // the red cube (“Elektronenüberschuss”) should be on the negative Z side
-        // and the blue cube (“Elektronenmangel”) on the positive Z side.
         if (hallCoefficient < 0) {
             this.chargeIndicators.plus.position.set(0, 0, -this.CONDUCTOR_WIDTH / 2);
             this.chargeIndicators.minus.position.set(0, 0, this.CONDUCTOR_WIDTH / 2);
             this.chargeIndicators.plusLabel.position.set(0.3, 0, -this.CONDUCTOR_WIDTH / 2);
             this.chargeIndicators.minusLabel.position.set(0.3, 0, this.CONDUCTOR_WIDTH / 2);
         } else {
-            // For positive Hall coefficient, swap the positions:
-            // the red cube moves to the positive Z side and the blue cube to the negative Z side.
             this.chargeIndicators.plus.position.set(0, 0, this.CONDUCTOR_WIDTH / 2);
             this.chargeIndicators.minus.position.set(0, 0, -this.CONDUCTOR_WIDTH / 2);
             this.chargeIndicators.plusLabel.position.set(0.3, 0, this.CONDUCTOR_WIDTH / 2);
@@ -426,39 +398,30 @@ class HallEffectSimulation {
         const current = this.getCurrentValue();
         const magneticField = this.getMagneticFieldValue();
         const hallCoefficient = this.getHallCoefficient();
-        // U_H = RH * (I * B) / d   (wobei d = CONDUCTOR_WIDTH)
         const hallVoltage = hallCoefficient * (current * magneticField) / this.CONDUCTOR_WIDTH;
 
         const hallVoltageElement = document.getElementById("hallVoltage");
         if (hallVoltageElement) {
-            // Show only the value without the formula
             hallVoltageElement.textContent = `Hall-Spannung: ${hallVoltage.toFixed(2)} V`;
         }
 
-        // Update hall voltage arrows visibility based on hall coefficient sign
         this.hallVoltageArrows.forEach(arrowObj => {
             const arrow = arrowObj.arrow;
             const side = arrowObj.side;
             const shouldBeVisible = Math.abs(hallVoltage) > 0.1;
             
-            // For negative hall coefficient, show arrows from posZ to negZ
-            // For positive hall coefficient, show arrows from negZ to posZ
             if (hallCoefficient < 0) {
-                // If negative RH, show arrows on posZ side (default direction is already correct)
                 arrow.visible = shouldBeVisible && side === "posZ";
             } else {
-                // If positive RH, show arrows on negZ side (default direction is already correct)
                 arrow.visible = shouldBeVisible && side === "negZ";
             }
             
-            // Set the scale based on voltage magnitude
             if (arrow.visible && shouldBeVisible) {
                 const scale = Math.max(0.5, Math.min(2, Math.abs(hallVoltage)));
                 arrow.scale.set(scale, scale, scale);
             }
         });
 
-        // Update the charge indicators so that their positions follow the material value
         this.updateChargeIndicators();
 
         return hallVoltage;
@@ -488,7 +451,6 @@ class HallEffectSimulation {
                 const newDisplay = currentDisplay === "none" ? "block" : "none";
                 explPanel.style.display = newDisplay;
                 
-                // Render LaTeX when panel is shown
                 if (newDisplay === "block" && window.MathJax) {
                     setTimeout(() => {
                         MathJax.typesetPromise([explPanel]).catch((err) => console.log('MathJax error:', err));
@@ -550,7 +512,6 @@ class HallEffectSimulation {
         const materialSelect = document.getElementById("materialSelect");
         if (materialSelect) {
             materialSelect.addEventListener("change", () => {
-                // Trigger an update to recalculate positions based on the new material's value
                 this.calculateHallVoltage();
             });
         }
@@ -561,7 +522,6 @@ class HallEffectSimulation {
             this.renderer.setSize(window.innerWidth, window.innerHeight);
         });
 
-        // Click event for electrons
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
         window.addEventListener("click", (event) => {
@@ -593,14 +553,12 @@ class HallEffectSimulation {
             let html = `<p>Elektron ausgewählt</p>
                        <p>Stromstärke: ${current.toFixed(2)}</p>`;
             
-            // Only show B-Feld when electron is inside magnetic field
             if (inMagneticField) {
                 html += `<p>B-Feld: ${magneticField.toFixed(2)}</p>`;
             }
             
             html += `<p>Hall-Spannung: ${hallVoltage.toFixed(2)} V</p>`;
             
-            // Improved LaTeX formula display with better formatting to prevent overflow
             const conductorWidth = this.CONDUCTOR_WIDTH;
             html += `
             <div class="electron-formula formula" style="margin-top: 10px; font-size: 0.85em; padding: 8px; overflow-x: auto;">
@@ -609,7 +567,6 @@ class HallEffectSimulation {
             
             info.innerHTML = html;
             
-            // Use a small timeout to ensure the DOM is updated before MathJax processes it
             setTimeout(() => {
                 if (window.MathJax) {
                     MathJax.typesetPromise([info]).catch((err) => console.log('MathJax error:', err));
@@ -618,13 +575,11 @@ class HallEffectSimulation {
         }
     }
 
-    // Tutorial-Modus
     startTutorial() {
         this.tutorialActive = true;
         this.currentTutorialStep = 0;
         this.isPaused = true;
         
-        // Reset any existing highlights
         this.clearHighlights();
         
         this.showTutorialStep();
@@ -633,7 +588,6 @@ class HallEffectSimulation {
     showTutorialStep() {
         if (!this.tutorialActive) return;
         
-        // Clear previous highlights
         this.clearHighlights();
         
         const explPanel = document.getElementById("explanation");
@@ -641,11 +595,9 @@ class HallEffectSimulation {
             explPanel.style.display = "block";
             explPanel.innerHTML = `<h3>Tutorial</h3><p>${this.tutorialSteps[this.currentTutorialStep].text}</p><p>Klicken Sie, um fortzufahren...</p>`;
             
-            // Apply new highlight based on current step
             const highlightTarget = this.tutorialSteps[this.currentTutorialStep].highlight;
             this.highlightObject(highlightTarget);
             
-            // Tell MathJax to render the new content if there might be LaTeX
             if (window.MathJax) {
                 setTimeout(() => {
                     MathJax.typesetPromise([explPanel]).catch((err) => console.log('MathJax error:', err));
@@ -658,12 +610,10 @@ class HallEffectSimulation {
             if (this.currentTutorialStep < this.tutorialSteps.length) {
                 this.showTutorialStep();
             } else {
-                // Tutorial finished -> Restore original explanation content
                 explPanel.onclick = null;
                 explPanel.style.display = "none";
                 explPanel.innerHTML = this.originalExplanationContent;
                 
-                // Clear any remaining highlights
                 this.clearHighlights();
                 
                 this.tutorialActive = false;
@@ -673,7 +623,6 @@ class HallEffectSimulation {
         };
     }
 
-    // New methods for tutorial highlighting
     highlightObject(targetName) {
         const highlightMaterial = new THREE.MeshBasicMaterial({
             color: 0xffff00,
@@ -684,18 +633,15 @@ class HallEffectSimulation {
         
         switch(targetName) {
             case "conductor":
-                // Store original material and apply highlight
                 this.originalMaterials.set(this.conductor, this.conductor.material);
                 this.conductor.material = highlightMaterial;
                 
-                // Move camera to focus on the conductor
                 this.moveCameraToFocus(this.conductor.position, 8);
                 break;
                 
             case "magnetGroup":
-                // Highlight the magnet field box
                 if (this.magnetGroup.children.length > 0) {
-                    const fieldBox = this.magnetGroup.children[0]; // First child is the field region
+                    const fieldBox = this.magnetGroup.children[0];
                     this.originalMaterials.set(fieldBox, fieldBox.material);
                     fieldBox.material = new THREE.MeshBasicMaterial({
                         color: 0x00ffff,
@@ -704,8 +650,7 @@ class HallEffectSimulation {
                     });
                 }
                 
-                // Make field lines more visible
-                for (let i = 1; i < this.magnetGroup.children.length - 4; i++) { // Skip poles and labels
+                for (let i = 1; i < this.magnetGroup.children.length - 4; i++) {
                     if (this.magnetGroup.children[i].type === "Line") {
                         const line = this.magnetGroup.children[i];
                         this.originalMaterials.set(line, line.material);
@@ -718,17 +663,14 @@ class HallEffectSimulation {
                     }
                 }
                 
-                // Move camera to focus on the magnet
                 this.moveCameraToFocus(this.magnetGroup.position, 10);
                 break;
                 
             case "lorentz":
-                // Highlight the Lorentz force arrows on electrons
                 this.electrons.forEach(electron => {
                     if (this.isInMagneticField(electron.position)) {
                         const arrowSet = this.arrows.get(electron);
                         if (arrowSet) {
-                            // Make only the Lorentz force arrow highly visible
                             arrowSet.Fl.setLength(this.ARROW_LENGTH * 2);
                             arrowSet.Fl.line.material.color.set(0x00ffff);
                             arrowSet.Fl.cone.material.color.set(0x00ffff);
@@ -738,15 +680,12 @@ class HallEffectSimulation {
                     }
                 });
                 
-                // Move camera to a good angle to see Lorentz forces
                 this.moveCameraToFocus(new THREE.Vector3(0, 0, 0), 8, new THREE.Vector3(0, 1, 1));
                 break;
                 
             case "hallVoltageArrows":
-                // Highlight the Hall voltage arrows
                 this.hallVoltageArrows.forEach(arrowObj => {
                     const arrow = arrowObj.arrow;
-                    // Make all Hall voltage arrows visible temporarily for tutorial
                     arrow.visible = true;
                     arrow.line.material.color.set(0xffff00);
                     arrow.line.material.opacity = 1;
@@ -756,22 +695,18 @@ class HallEffectSimulation {
                     arrow.scale.set(1.5, 1.5, 1.5);
                 });
                 
-                // Also highlight charge indicators
                 this.chargeIndicators.plus.material.opacity = 1;
                 this.chargeIndicators.minus.material.opacity = 1;
                 
-                // Move camera to see Hall voltage effect
                 this.moveCameraToFocus(new THREE.Vector3(0, 0, 0), 8, new THREE.Vector3(1, 0.5, 0.5));
                 break;
                 
             case "controls":
-                // Highlight the control panel in the UI
                 const controlsPanel = document.getElementById("controls");
                 if (controlsPanel) {
                     controlsPanel.style.boxShadow = "0 0 20px 5px rgba(255,255,0,0.7)";
                     controlsPanel.style.animation = "pulse 1.5s infinite";
                     
-                    // Add animation style if it doesn't exist
                     if (!document.getElementById("highlight-animation")) {
                         const style = document.createElement("style");
                         style.id = "highlight-animation";
@@ -786,20 +721,17 @@ class HallEffectSimulation {
                     }
                 }
                 
-                // Reset camera to default view
                 this.moveCameraToFocus(new THREE.Vector3(0, 0, 0), 10);
                 break;
         }
     }
 
     clearHighlights() {
-        // Restore original materials
         this.originalMaterials.forEach((material, object) => {
             object.material = material;
         });
         this.originalMaterials.clear();
         
-        // Reset Lorentz arrows
         this.electrons.forEach(electron => {
             const arrowSet = this.arrows.get(electron);
             if (arrowSet) {
@@ -811,21 +743,17 @@ class HallEffectSimulation {
             }
         });
         
-        // Reset Hall voltage arrows
         this.hallVoltageArrows.forEach(arrowObj => {
             arrowObj.arrow.line.material.color.set(0xffff00);
             arrowObj.arrow.cone.material.color.set(0xffff00);
             arrowObj.arrow.setLength(this.CONDUCTOR_WIDTH);
         });
         
-        // Reset Hall voltage visibility based on actual physics
         const hallVoltage = this.calculateHallVoltage();
         
-        // Reset charge indicators
         this.chargeIndicators.plus.material.opacity = 0.7;
         this.chargeIndicators.minus.material.opacity = 0.7;
         
-        // Clear UI highlights
         const controlsPanel = document.getElementById("controls");
         if (controlsPanel) {
             controlsPanel.style.boxShadow = "none";
@@ -834,19 +762,15 @@ class HallEffectSimulation {
     }
 
     moveCameraToFocus(targetPosition, distance, offset = new THREE.Vector3(1, 1, 1)) {
-        // Normalize the offset direction
         offset.normalize();
         
-        // Calculate camera position
         const newPosition = new THREE.Vector3().copy(targetPosition).add(
             offset.multiplyScalar(distance)
         );
         
-        // Use TWEEN to animate the camera movement
         const currentPosition = this.camera.position.clone();
-        const duration = 1000; // Animation duration in ms
+        const duration = 1000;
         
-        // Simple linear interpolation function
         const startTime = Date.now();
         const updateCamera = () => {
             const elapsed = Date.now() - startTime;
@@ -869,22 +793,17 @@ class HallEffectSimulation {
         const hallVoltage = this.calculateHallVoltage();
 
         this.electrons.forEach(electron => {
-            // Stromfluss in x-Richtung
             electron.position.x += this.ELECTRON_SPEED * currentValue;
 
-            // Einfacher „Gravitations“-Effekt
             const GRAVITY_STRENGTH = 0.001;
             electron.position.y -= GRAVITY_STRENGTH;
 
-            // Lorentzkraft nur innerhalb des Magnetfelds
             if (this.isInMagneticField(electron.position)) {
                 const lorentzForce = hallVoltage * 0.01;
-                // Kleine Modellierung der Gegenkraft (E-Feld), proportional zur Position z
                 const electricForce = lorentzForce * (electron.position.z / (this.CONDUCTOR_WIDTH / 2));
                 const netForce = lorentzForce - electricForce;
                 electron.position.z -= netForce;
 
-                // Elektrische Gegenkraft (Fe) sichtbar machen
                 const arrowSet = this.arrows.get(electron);
                 if (arrowSet) {
                     arrowSet.Fe.visible = true;
@@ -892,7 +811,6 @@ class HallEffectSimulation {
                     arrowSet.Fe.setLength(this.ARROW_LENGTH * scale);
                 }
             } else {
-                // Wenn kein Magnetfeld: Zurücksetzen in Richtung ursprünglicher Position (nur z und y)
                 electron.position.z = THREE.MathUtils.lerp(
                     electron.position.z,
                     electron.userData.originalPosition.z,
@@ -904,40 +822,33 @@ class HallEffectSimulation {
                     0.05
                 );
 
-                // Elektrische Gegenkraft (Fe) ausblenden
                 const arrowSet = this.arrows.get(electron);
                 if (arrowSet) {
                     arrowSet.Fe.visible = false;
                 }
             }
 
-            // Begrenzung innerhalb des Leiters (Y-Richtung)
             electron.position.y = Math.max(
                 -this.CONDUCTOR_HEIGHT / 2 + this.ELECTRON_SIZE,
                 Math.min(this.CONDUCTOR_HEIGHT / 2 - this.ELECTRON_SIZE, electron.position.y)
             );
-            // Begrenzung innerhalb des Leiters (Z-Richtung)
             electron.position.z = Math.max(
                 -this.CONDUCTOR_WIDTH / 2 + this.ELECTRON_SIZE,
                 Math.min(this.CONDUCTOR_WIDTH / 2 - this.ELECTRON_SIZE, electron.position.z)
             );
 
-            // Wenn Elektron das rechte Ende erreicht, wieder zurücksetzen (Loop)
             if (electron.position.x > this.CONDUCTOR_LENGTH / 2 - this.ELECTRON_SIZE) {
                 electron.position.x = -this.CONDUCTOR_LENGTH / 2 + this.ELECTRON_SIZE;
                 electron.position.z = (Math.random() - 0.5) * (this.CONDUCTOR_WIDTH - 0.2);
-                // Optional: Aktualisieren der gespeicherten Ausgangsposition
                 electron.userData.originalPosition = electron.position.clone();
             }
 
-            // Pfeile aktualisieren
             const arrowSet = this.arrows.get(electron);
             if (arrowSet) {
                 Object.values(arrowSet).forEach(arrow => {
                     arrow.position.copy(electron.position);
                 });
                 arrowSet.Fl.visible = this.isInMagneticField(electron.position);
-                // B-Pfeil nur anzeigen, wenn das Elektron im Magnetfeld ist
                 arrowSet.B.visible = this.isInMagneticField(electron.position);
             }
         });
@@ -951,5 +862,4 @@ class HallEffectSimulation {
     }
 }
 
-// Starten der Simulation
 const simulation = new HallEffectSimulation();
