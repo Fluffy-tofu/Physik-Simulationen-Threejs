@@ -4,7 +4,6 @@
     <a href="index.html" class="control-button" style="top: 23px; right: 20px; text-decoration: none;">Back to Menu</a>
     <meta charset="UTF-8">
     <title>Hall-Effekt Simulation</title>
-    <!-- Add MathJax script -->
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <style>
@@ -34,7 +33,7 @@
             position: absolute;
             top: 10px;
             left: 10px;
-            width: 270px; /* Slightly wider to accommodate the formula */
+            width: 270px;
         }
         #info {
             background: rgba(0,0,0,0.7);
@@ -42,7 +41,6 @@
             padding: 15px;
             border-radius: 5px;
         }
-        /* Updated legend background */
         #legend {
             background: rgba(0,0,0,0.7);
             padding: 10px;
@@ -71,7 +69,6 @@
             gap: 10px;
             margin-bottom: 10px;
         }
-        /* Updated explanation panel background */
         .explanation-panel {
             background: rgba(0,0,0,0.7);
             padding: 15px;
@@ -94,7 +91,6 @@
         button:hover {
             background: #45a049;
         }
-        /* Add fixed width to pause button */
         #pauseBtn {
             width: 80px;
             text-align: center;
@@ -148,17 +144,16 @@
         .formula {
             background: rgba(255,255,255,0.9);
             padding: 10px 5px;
-            margin: 15px 0; /* Increased margins for better spacing */
+            margin: 15px 0;
             border-radius: 5px;
             font-family: "Times New Roman", serif;
             font-size: 1.2em;
             color: black;
             border: 1px solid #ccc;
             text-align: center;
-            line-height: 1.5; /* Improved line height */
-            overflow: hidden; /* Ensure no scrolling */
+            line-height: 1.5;
+            overflow: hidden;
         }
-        /* Fix spacing between paragraphs and lists */
         .explanation-panel p {
             margin: 12px 0;
             line-height: 1.5;
@@ -176,13 +171,11 @@
             margin-bottom: 5px;
             line-height: 1.5;
         }
-        /* Specific styling for electron formulas */
         .electron-formula {
             margin-top: 5px !important;
             padding: 5px !important;
         }
         
-        /* New styles for watermark and disclaimer */
         .disclaimer {
             position: fixed;
             bottom: 10px;
@@ -205,7 +198,6 @@
             pointer-events: none;
         }
 
-        /* Button for switching between theory and sensor mode */
         #sensorModeBtn {
             background: #9C27B0;
             width: 100%;
@@ -217,7 +209,6 @@
             background: #7B1FA2;
         }
         
-        /* Hide electron info when in sensor mode */
         .hidden {
             display: none !important;
         }
@@ -287,7 +278,6 @@
             </select>
         </div>
         <div id="hallVoltage">Hall-Spannung: 0.00 V</div>
-        <!-- Removed Hall sensor button -->
         <button id="explanation-toggle">Erklärung</button>
         <button id="tutorialBtn">Tutorial</button>
     </div>
@@ -355,7 +345,6 @@
     </div>
 </div>
 
-<!-- Add gravity disclaimer and watermark at the end of the body -->
 <div class="disclaimer">Schwerkraft wird nicht berücksichtigt</div>
 <div class="watermark">Nandor Koch // 2025</div>
 
