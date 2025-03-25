@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
-class HallEffectSimulation {
+export class HallEffectSimulation {
     constructor() {
         this.scene = new THREE.Scene();
         this.camera = new THREE.PerspectiveCamera(
@@ -76,6 +76,7 @@ class HallEffectSimulation {
         this.createMagnet();
         this.createElectrons(15);
         this.createChargeIndicators();
+        this.createHallVoltageArrows();
 
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);
         this.controls.enableDamping = true;
@@ -84,7 +85,6 @@ class HallEffectSimulation {
         this.setupEventListeners();
         this.setupExplanationPanel();
         this.originalExplanationContent = document.getElementById("explanation").innerHTML;
-
 
         this.animate();
     }
@@ -202,7 +202,6 @@ class HallEffectSimulation {
                 this.magnetGroup.add(line);
             }
         }
-
 
         const poleGeometry = new THREE.BoxGeometry(1.5, 1, 1.5);
         const southPole = new THREE.Mesh(
@@ -368,6 +367,34 @@ class HallEffectSimulation {
         this.scene.add(this.chargeIndicators.minusLabel);
     }
 
+    createHallVoltageArrows() {
+        // Create arrows to visualize the Hall voltage
+        // First arrow from minus side to plus side (posZ to negZ)
+        const arrowPosToNeg = new THREE.ArrowHelper(
+            new THREE.Vector3(0, 0, -1),
+            new THREE.Vector3(0, 0, this.CONDUCTOR_WIDTH / 2),
+            this.CONDUCTOR_WIDTH,
+            0xffff00
+        );
+
+        // Second arrow from plus side to minus side (negZ to posZ)
+        const arrowNegToPos = new THREE.ArrowHelper(
+            new THREE.Vector3(0, 0, 1),
+            new THREE.Vector3(0, 0, -this.CONDUCTOR_WIDTH / 2),
+            this.CONDUCTOR_WIDTH,
+            0xffff00
+        );
+
+        arrowPosToNeg.visible = false;
+        arrowNegToPos.visible = false;
+
+        this.scene.add(arrowPosToNeg);
+        this.scene.add(arrowNegToPos);
+
+        this.hallVoltageArrows.push({ arrow: arrowPosToNeg, side: "posZ" });
+        this.hallVoltageArrows.push({ arrow: arrowNegToPos, side: "negZ" });
+    }
+
     updateChargeIndicators() {
         const hallCoefficient = this.getHallCoefficient();
         if (hallCoefficient < 0) {
@@ -409,13 +436,13 @@ class HallEffectSimulation {
             const arrow = arrowObj.arrow;
             const side = arrowObj.side;
             const shouldBeVisible = Math.abs(hallVoltage) > 0.1;
-            
+
             if (hallCoefficient < 0) {
                 arrow.visible = shouldBeVisible && side === "posZ";
             } else {
                 arrow.visible = shouldBeVisible && side === "negZ";
             }
-            
+
             if (arrow.visible && shouldBeVisible) {
                 const scale = Math.max(0.5, Math.min(2, Math.abs(hallVoltage)));
                 arrow.scale.set(scale, scale, scale);
@@ -450,7 +477,7 @@ class HallEffectSimulation {
                 const currentDisplay = window.getComputedStyle(explPanel).display;
                 const newDisplay = currentDisplay === "none" ? "block" : "none";
                 explPanel.style.display = newDisplay;
-                
+
                 if (newDisplay === "block" && window.MathJax) {
                     setTimeout(() => {
                         MathJax.typesetPromise([explPanel]).catch((err) => console.log('MathJax error:', err));
@@ -516,6 +543,20 @@ class HallEffectSimulation {
             });
         }
 
+        const magneticField = document.getElementById("magneticField");
+        if (magneticField) {
+            magneticField.addEventListener("input", () => {
+                this.calculateHallVoltage();
+            });
+        }
+
+        const current = document.getElementById("current");
+        if (current) {
+            current.addEventListener("input", () => {
+                this.calculateHallVoltage();
+            });
+        }
+
         window.addEventListener("resize", () => {
             this.camera.aspect = window.innerWidth / window.innerHeight;
             this.camera.updateProjectionMatrix();
@@ -549,24 +590,24 @@ class HallEffectSimulation {
             const current = this.getCurrentValue();
             const magneticField = this.getMagneticFieldValue();
             const hallCoefficient = this.getHallCoefficient();
-            
+
             let html = `<p>Elektron ausgewählt</p>
                        <p>Stromstärke: ${current.toFixed(2)}</p>`;
-            
+
             if (inMagneticField) {
                 html += `<p>B-Feld: ${magneticField.toFixed(2)}</p>`;
             }
-            
+
             html += `<p>Hall-Spannung: ${hallVoltage.toFixed(2)} V</p>`;
-            
+
             const conductorWidth = this.CONDUCTOR_WIDTH;
             html += `
             <div class="electron-formula formula" style="margin-top: 10px; font-size: 0.85em; padding: 8px; overflow-x: auto;">
                 $$U_H = ${hallCoefficient.toFixed(2)} \\cdot \\frac{${current.toFixed(2)} \\cdot ${magneticField.toFixed(2)}}{${conductorWidth}} = ${hallVoltage.toFixed(2)}\\,V$$
             </div>`;
-            
+
             info.innerHTML = html;
-            
+
             setTimeout(() => {
                 if (window.MathJax) {
                     MathJax.typesetPromise([info]).catch((err) => console.log('MathJax error:', err));
@@ -579,32 +620,32 @@ class HallEffectSimulation {
         this.tutorialActive = true;
         this.currentTutorialStep = 0;
         this.isPaused = true;
-        
+
         this.clearHighlights();
-        
+
         this.showTutorialStep();
     }
 
     showTutorialStep() {
         if (!this.tutorialActive) return;
-        
+
         this.clearHighlights();
-        
+
         const explPanel = document.getElementById("explanation");
         if (explPanel) {
             explPanel.style.display = "block";
             explPanel.innerHTML = `<h3>Tutorial</h3><p>${this.tutorialSteps[this.currentTutorialStep].text}</p><p>Klicken Sie, um fortzufahren...</p>`;
-            
+
             const highlightTarget = this.tutorialSteps[this.currentTutorialStep].highlight;
             this.highlightObject(highlightTarget);
-            
+
             if (window.MathJax) {
                 setTimeout(() => {
                     MathJax.typesetPromise([explPanel]).catch((err) => console.log('MathJax error:', err));
                 }, 10);
             }
         }
-        
+
         explPanel.onclick = () => {
             this.currentTutorialStep++;
             if (this.currentTutorialStep < this.tutorialSteps.length) {
@@ -613,9 +654,9 @@ class HallEffectSimulation {
                 explPanel.onclick = null;
                 explPanel.style.display = "none";
                 explPanel.innerHTML = this.originalExplanationContent;
-                
+
                 this.clearHighlights();
-                
+
                 this.tutorialActive = false;
                 this.isPaused = false;
                 this.setupExplanationPanel();
@@ -630,15 +671,15 @@ class HallEffectSimulation {
             opacity: 0.6,
             depthTest: false
         });
-        
+
         switch(targetName) {
             case "conductor":
                 this.originalMaterials.set(this.conductor, this.conductor.material);
                 this.conductor.material = highlightMaterial;
-                
+
                 this.moveCameraToFocus(this.conductor.position, 8);
                 break;
-                
+
             case "magnetGroup":
                 if (this.magnetGroup.children.length > 0) {
                     const fieldBox = this.magnetGroup.children[0];
@@ -649,7 +690,7 @@ class HallEffectSimulation {
                         opacity: 0.4
                     });
                 }
-                
+
                 for (let i = 1; i < this.magnetGroup.children.length - 4; i++) {
                     if (this.magnetGroup.children[i].type === "Line") {
                         const line = this.magnetGroup.children[i];
@@ -662,10 +703,10 @@ class HallEffectSimulation {
                         });
                     }
                 }
-                
+
                 this.moveCameraToFocus(this.magnetGroup.position, 10);
                 break;
-                
+
             case "lorentz":
                 this.electrons.forEach(electron => {
                     if (this.isInMagneticField(electron.position)) {
@@ -679,10 +720,10 @@ class HallEffectSimulation {
                         }
                     }
                 });
-                
+
                 this.moveCameraToFocus(new THREE.Vector3(0, 0, 0), 8, new THREE.Vector3(0, 1, 1));
                 break;
-                
+
             case "hallVoltageArrows":
                 this.hallVoltageArrows.forEach(arrowObj => {
                     const arrow = arrowObj.arrow;
@@ -694,19 +735,19 @@ class HallEffectSimulation {
                     arrow.setLength(this.CONDUCTOR_WIDTH * 1.2);
                     arrow.scale.set(1.5, 1.5, 1.5);
                 });
-                
+
                 this.chargeIndicators.plus.material.opacity = 1;
                 this.chargeIndicators.minus.material.opacity = 1;
-                
+
                 this.moveCameraToFocus(new THREE.Vector3(0, 0, 0), 8, new THREE.Vector3(1, 0.5, 0.5));
                 break;
-                
+
             case "controls":
                 const controlsPanel = document.getElementById("controls");
                 if (controlsPanel) {
                     controlsPanel.style.boxShadow = "0 0 20px 5px rgba(255,255,0,0.7)";
                     controlsPanel.style.animation = "pulse 1.5s infinite";
-                    
+
                     if (!document.getElementById("highlight-animation")) {
                         const style = document.createElement("style");
                         style.id = "highlight-animation";
@@ -720,7 +761,7 @@ class HallEffectSimulation {
                         document.head.appendChild(style);
                     }
                 }
-                
+
                 this.moveCameraToFocus(new THREE.Vector3(0, 0, 0), 10);
                 break;
         }
@@ -731,7 +772,7 @@ class HallEffectSimulation {
             object.material = material;
         });
         this.originalMaterials.clear();
-        
+
         this.electrons.forEach(electron => {
             const arrowSet = this.arrows.get(electron);
             if (arrowSet) {
@@ -742,18 +783,18 @@ class HallEffectSimulation {
                 arrowSet.Fl.cone.material.opacity = 1;
             }
         });
-        
+
         this.hallVoltageArrows.forEach(arrowObj => {
             arrowObj.arrow.line.material.color.set(0xffff00);
             arrowObj.arrow.cone.material.color.set(0xffff00);
             arrowObj.arrow.setLength(this.CONDUCTOR_WIDTH);
         });
-        
+
         const hallVoltage = this.calculateHallVoltage();
-        
+
         this.chargeIndicators.plus.material.opacity = 0.7;
         this.chargeIndicators.minus.material.opacity = 0.7;
-        
+
         const controlsPanel = document.getElementById("controls");
         if (controlsPanel) {
             controlsPanel.style.boxShadow = "none";
@@ -763,32 +804,33 @@ class HallEffectSimulation {
 
     moveCameraToFocus(targetPosition, distance, offset = new THREE.Vector3(1, 1, 1)) {
         offset.normalize();
-        
+
         const newPosition = new THREE.Vector3().copy(targetPosition).add(
             offset.multiplyScalar(distance)
         );
-        
+
         const currentPosition = this.camera.position.clone();
         const duration = 1000;
-        
+
         const startTime = Date.now();
         const updateCamera = () => {
             const elapsed = Date.now() - startTime;
             const progress = Math.min(elapsed / duration, 1);
-            
+
             this.camera.position.lerpVectors(currentPosition, newPosition, progress);
             this.camera.lookAt(targetPosition);
-            
+
             if (progress < 1) {
                 requestAnimationFrame(updateCamera);
             }
         };
-        
+
         updateCamera();
     }
 
     updateElectronPositions() {
         if (this.isPaused) return;
+
         const currentValue = this.getCurrentValue();
         const hallVoltage = this.calculateHallVoltage();
 
@@ -861,5 +903,3 @@ class HallEffectSimulation {
         this.renderer.render(this.scene, this.camera);
     }
 }
-
-const simulation = new HallEffectSimulation();

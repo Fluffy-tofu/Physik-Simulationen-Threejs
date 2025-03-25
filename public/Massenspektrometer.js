@@ -1,4 +1,4 @@
-import './style.css';
+import '../src/style.css';
 
 // SVG definitions - we'll define these inline rather than loading external files
 const SVG_DEFS = {

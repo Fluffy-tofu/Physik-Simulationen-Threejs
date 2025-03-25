@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <a href="../index.html" class="control-button" style="top: 23px; right: 20px; text-decoration: none;">Back to Menu</a>
     <meta charset="UTF-8">
     <title>Hall-Effekt Simulation</title>
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
@@ -175,7 +174,7 @@
             margin-top: 5px !important;
             padding: 5px !important;
         }
-        
+
         .disclaimer {
             position: fixed;
             bottom: 10px;
@@ -186,7 +185,7 @@
             font-style: italic;
             pointer-events: none;
         }
-        
+
         .watermark {
             position: fixed;
             bottom: 10px;
@@ -204,17 +203,19 @@
             margin: 10px 0;
             padding: 8px;
         }
-        
+
         #sensorModeBtn:hover {
             background: #7B1FA2;
         }
-        
+
         .hidden {
             display: none !important;
         }
     </style>
 </head>
 <body>
+<a href="../index.html" class="control-button" style="top: 20px; right: 20px; text-decoration: none;">Back to Menu</a>
+
 <div id="info-container">
     <div id="info">
         <h3 id="info-title">Hall-Effekt Simulation</h3>
@@ -283,12 +284,12 @@
     </div>
     <div id="explanation" class="explanation-panel">
         <h3>Hall-Effekt: Kompakte Übersicht</h3>
-        
+
         <h4>Definition</h4>
         <p>
             Der Hall-Effekt beschreibt die Entstehung einer messbaren Querspannung in einem stromdurchflossenen Leiter, der sich in einem Magnetfeld befindet.
         </p>
-        
+
         <h4>Physikalische Grundlagen</h4>
         <ul>
             <li><strong>Stromfluss:</strong> Elektronen bewegen sich durch den Leiter (von negativ nach positiv)</li>
@@ -297,16 +298,16 @@
             <li><strong>Ladungstrennung:</strong> Führt zu Elektronenüberschuss auf einer Seite und -mangel auf der anderen</li>
             <li><strong>Hall-Spannung U<sub>H</sub>:</strong> Messbares elektrisches Potential zwischen den Seiten des Leiters</li>
         </ul>
-        
+
         <h4>Hall-Koeffizient (R<sub>H</sub>)</h4>
         <p>
             Eine materialspezifische Konstante, die bestimmt, wie stark der Hall-Effekt ausgeprägt ist:
         </p>
-        
+
         <div class="formula">
             $$R_H = \frac{U_H \cdot d}{I \cdot B}$$
         </div>
-        
+
         <p>Hierbei ist:</p>
         <ul>
             <li>$$U_H$$: Hall-Spannung [V]</li>
@@ -314,25 +315,25 @@
             <li>$$I$$: Stromstärke [A]</li>
             <li>$$B$$: Magnetfeldstärke [T]</li>
         </ul>
-        
+
         <h4>Bedeutung des Vorzeichens</h4>
         <ul>
             <li><strong>Negatives R<sub>H</sub>:</strong> Elektronen sind die Hauptladungsträger (typisch für die meisten Metalle)</li>
             <li><strong>Positives R<sub>H</sub>:</strong> "Löcher" (Elektronenmangel) sind die dominierenden Ladungsträger (manche Halbleiter und spezielle Metalle)</li>
         </ul>
-        
+
         <h4>Hall-Spannung berechnen</h4>
         <div class="formula">
             $$U_H = R_H \cdot \frac{I \cdot B}{d}$$
         </div>
-        
+
         <h4>Praktische Anwendungen</h4>
         <ul>
             <li>Hall-Sensoren zur Messung von Magnetfeldern und elektrischen Strömen</li>
             <li>Positions- und Drehzahlsensoren in der Automobil- und Industrietechnik</li>
             <li>Bestimmung der Ladungsträgerkonzentration in Halbleitern</li>
         </ul>
-        
+
         <h4>In dieser Simulation</h4>
         <p>
             Experimentieren Sie mit den Parametern, um zu sehen, wie sich die Hall-Spannung verändert:
@@ -348,6 +349,12 @@
 <div class="disclaimer">Schwerkraft wird nicht berücksichtigt</div>
 <div class="watermark">Nandor Koch // 2025</div>
 
-<script type="module" src="../src/Nmain.js"></script>
+<script type="module">
+    import { HallEffectSimulation } from '/Users/philipklippel/WebstormProjects/untitled/public/Nmain.js';
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const simulation = new HallEffectSimulation();
+    });
+</script>
 </body>
 </html>
