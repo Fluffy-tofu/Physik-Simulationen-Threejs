@@ -1,4 +1,4 @@
-import './public/style.css';
+import './style.css';
 
 
 // SVG definitions - we'll define these inline rather than loading external files
