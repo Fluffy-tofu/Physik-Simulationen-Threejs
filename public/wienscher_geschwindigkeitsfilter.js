@@ -1,6 +1,6 @@
 import './style.css'
 import * as THREE from "../node_modules/three/build/three.module.js";
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
+import { OrbitControls } from '../node_modules/three/build/three.module.js/examples/jsm/controls/OrbitControls'
 
 let scene, camera, renderer, controls;
 let isAnimating = false;
