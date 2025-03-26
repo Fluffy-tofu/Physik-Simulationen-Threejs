@@ -108,27 +108,27 @@ function setupUIControls() {
 
     massSlider.addEventListener('input', (e) => {
         params.particleMass = parseFloat(e.target.value);
-        document.getElementById('mass-value').textContent = params.particleMass.toFixed(1);
+        updateUIValues();
     });
 
     chargeSlider.addEventListener('input', (e) => {
         params.particleCharge = parseFloat(e.target.value);
-        document.getElementById('charge-value').textContent = params.particleCharge.toFixed(1);
+        updateUIValues();
     });
 
     magneticFieldSlider.addEventListener('input', (e) => {
         params.magneticField = parseFloat(e.target.value);
-        document.getElementById('magneticfield-value').textContent = params.magneticField.toFixed(1);
+        updateUIValues();
     });
 
     voltageSlider.addEventListener('input', (e) => {
         params.voltage = parseFloat(e.target.value);
-        document.getElementById('voltage-value').textContent = params.voltage.toFixed(1);
+        updateUIValues();
     });
 
     speedSlider.addEventListener('input', (e) => {
         params.initialSpeed = parseFloat(e.target.value);
-        document.getElementById('speed-value').textContent = params.initialSpeed.toFixed(1);
+        updateUIValues();
     });
 
     deesRadiusSlider.addEventListener('input', (e) => {
@@ -176,6 +176,7 @@ function setupUIControls() {
     }
 
     translateUIToGerman();
+    updateUIValues();
 }
 
 function translateUIToGerman() {
@@ -251,7 +252,7 @@ function toggleRealisticMode() {
 }
 
 function updateUIValues() {
-    // Create properly formatted values for realistic mode
+    // Update slider values
     if (isRealisticMode) {
         // Update mass with better formatting
         const massEl = document.getElementById('mass-value');
@@ -270,13 +271,23 @@ function updateUIValues() {
         // Update voltage
         document.getElementById('voltage-value').textContent =
             (params.voltage / realParams.voltageScale).toFixed(0) + ' V';
+
+        // Keep sliders in sync with realistic values
+        document.getElementById('mass-slider').value = 1.0;
+        document.getElementById('charge-slider').value = 1.0;
+        document.getElementById('magneticfield-slider').value = params.magneticField;
+        document.getElementById('voltage-slider').value = params.voltage * realParams.voltageScale;
     } else {
-        // Regular mode
+        // Regular mode - simple text updates
         document.getElementById('mass-value').textContent = params.particleMass.toFixed(1);
         document.getElementById('charge-value').textContent = params.particleCharge.toFixed(1);
         document.getElementById('magneticfield-value').textContent = params.magneticField.toFixed(1);
         document.getElementById('voltage-value').textContent = params.voltage.toFixed(1);
     }
+
+    // Always update speed and dees radius
+    document.getElementById('speed-value').textContent = params.initialSpeed.toFixed(1);
+    document.getElementById('deesradius-value').textContent = params.deesRadius.toFixed(0);
 }
 
 function createParticle() {
@@ -293,12 +304,24 @@ function createParticle() {
     particlePosition = particle.position.clone();
     previousPosition = particle.position.clone();
 
+    // Calculate cyclotron frequency
     const cyclotronFrequency = (params.particleCharge * params.magneticField) / params.particleMass;
 
+    // Calculate initial velocity for circular motion
+    // Add a minimum value to ensure the particle always moves
     let initialSpeedForCircularMotion = params.initialRadius * cyclotronFrequency;
-    initialSpeedForCircularMotion = Math.max(initialSpeedForCircularMotion, params.initialSpeed);
 
+    // Use the higher value between calculated speed and user-defined speed
+    // Add a minimum value of 0.5 to ensure particle always moves
+    initialSpeedForCircularMotion = Math.max(initialSpeedForCircularMotion, params.initialSpeed, 0.5);
+
+    // Set initial velocity perpendicular to position vector (for circular motion)
     particleVelocity = new THREE.Vector3(0, 0, initialSpeedForCircularMotion);
+
+    // Debug info
+    console.log(`Particle initialized: charge=${params.particleCharge}, mass=${params.particleMass}`);
+    console.log(`Cyclotron frequency: ${cyclotronFrequency}`);
+    console.log(`Initial speed: ${initialSpeedForCircularMotion}`);
 
     scene.add(particle);
 
@@ -716,27 +739,54 @@ function animate() {
 }
 
 function resetSimulation() {
+    // Stop animation
     isAnimating = false;
+
+    // Reset time
     time = 0;
+
+    // Reset extraction status
     params.particleExtracted = false;
     previousQuadrant = 0;
     lastGapCrossingTime = 0;
 
+    // Remove old particle and trail
     if (particle) scene.remove(particle);
     if (tubeMesh) scene.remove(tubeMesh);
 
+    // Clear trail points
     trailPoints.length = 0;
 
+    // Remove old dees
     if (dee1) scene.remove(dee1);
     if (dee2) scene.remove(dee2);
 
+    // Create new dees and particle
     createDees();
     createParticle();
 
+    // Reset frame counter
     frameCount = 0;
 
+    // Update display
     updateStatsDisplay();
+
+    // Update button text if needed
+    const button = document.querySelector('#startButton');
+    if (button) {
+        button.textContent = 'Animation starten';
+    }
+
+    // Render once
     renderer.render(scene, camera);
+
+    // Log reset for debugging
+    console.log("Simulation reset with parameters:",
+        "mass=", params.particleMass,
+        "charge=", params.particleCharge,
+        "B-field=", params.magneticField,
+        "voltage=", params.voltage,
+        "initialSpeed=", params.initialSpeed);
 }
 
 function onWindowResize() {
