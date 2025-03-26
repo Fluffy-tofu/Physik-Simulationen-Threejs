@@ -1,5 +1,5 @@
-import './style.css'
-import * as THREE from 'three';
+import './public/style.css'
+import * as THREE from "../node_modules/three/build/three.module.js";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 
 let scene, camera, renderer, sphere1, sphere2, controls;
