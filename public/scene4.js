@@ -17,7 +17,8 @@ const params = {
     extractionAngle: 0.15,
     extractionEnabled: false, // Disabled extraction by default
     particleExtracted: false,
-    timeScale: 1.0
+    timeScale: 1.0,
+    visualSlowdownFactor: 1.0 // For slowing down high-speed visuals
 };
 
 const realParams = {
@@ -100,33 +101,37 @@ function setupUIControls() {
     // Removed extraction toggle reference
 
     massSlider.addEventListener('input', (e) => {
-        params.particleMass = parseFloat(e.target.value);
-        document.getElementById('mass-value').textContent = params.particleMass.toFixed(1);
+        if (!isRealisticMode) {
+            params.particleMass = parseFloat(e.target.value);
+            updateUIValues();
+        }
     });
 
     chargeSlider.addEventListener('input', (e) => {
-        params.particleCharge = parseFloat(e.target.value);
-        document.getElementById('charge-value').textContent = params.particleCharge.toFixed(1);
+        if (!isRealisticMode) {
+            params.particleCharge = parseFloat(e.target.value);
+            updateUIValues();
+        }
     });
 
     magneticFieldSlider.addEventListener('input', (e) => {
         params.magneticField = parseFloat(e.target.value);
-        document.getElementById('magneticfield-value').textContent = params.magneticField.toFixed(1);
+        updateUIValues();
     });
 
     voltageSlider.addEventListener('input', (e) => {
         params.voltage = parseFloat(e.target.value);
-        document.getElementById('voltage-value').textContent = params.voltage.toFixed(1);
+        updateUIValues();
     });
 
     speedSlider.addEventListener('input', (e) => {
         params.initialSpeed = parseFloat(e.target.value);
-        document.getElementById('speed-value').textContent = params.initialSpeed.toFixed(1);
+        updateUIValues();
     });
 
     deesRadiusSlider.addEventListener('input', (e) => {
         params.deesRadius = parseFloat(e.target.value);
-        document.getElementById('deesradius-value').textContent = params.deesRadius.toFixed(0);
+        updateUIValues();
 
         scene.remove(dee1);
         scene.remove(dee2);
@@ -243,15 +248,33 @@ function toggleRealisticMode() {
     if (isRealisticMode) {
         button.textContent = 'Einfache Werte aktivieren';
 
-        // Fix: Adjusted timeScale and values for realistic mode to make it work
+        // Store original slider values
+        document.getElementById('mass-slider').disabled = true;
+        document.getElementById('charge-slider').disabled = true;
+
+        // Set realistic values
         params.particleMass = realParams.protonMass * realParams.massScale;
         params.particleCharge = realParams.protonCharge * realParams.chargeScale;
         params.magneticField = 1.5;
         params.voltage = 20000 * realParams.voltageScale;
         params.timeScale = 0.05; // Increased from 0.001 to make movement visible
         params.initialSpeed = 2.0; // Give it a bit more initial speed
+        params.visualSlowdownFactor = 5.0; // Slow down visuals for high speeds
+
+        // Add slowdown factor control
+        addSlowdownControl();
     } else {
         button.textContent = 'Realistische Werte aktivieren';
+
+        // Re-enable sliders
+        document.getElementById('mass-slider').disabled = false;
+        document.getElementById('charge-slider').disabled = false;
+
+        // Remove slowdown control if it exists
+        const slowdownGroup = document.getElementById('slowdown-group');
+        if (slowdownGroup) {
+            slowdownGroup.remove();
+        }
 
         params.particleMass = 1.0;
         params.particleCharge = 0.4;
@@ -259,10 +282,49 @@ function toggleRealisticMode() {
         params.voltage = 3.0;
         params.timeScale = 1.0;
         params.initialSpeed = 1.0;
+        params.visualSlowdownFactor = 1.0;
     }
 
     updateUIValues();
     resetSimulation();
+}
+
+function addSlowdownControl() {
+    // Check if the control already exists
+    let slowdownGroup = document.getElementById('slowdown-group');
+    if (slowdownGroup) {
+        return; // Already exists
+    }
+
+    // Create new control
+    slowdownGroup = document.createElement('div');
+    slowdownGroup.id = 'slowdown-group';
+    slowdownGroup.className = 'control-group';
+
+    const label = document.createElement('label');
+    label.htmlFor = 'slowdown-slider';
+    label.innerHTML = 'Zeitlupe-Faktor: <span id="slowdown-value" class="value-display">5.0</span>';
+
+    const slider = document.createElement('input');
+    slider.type = 'range';
+    slider.id = 'slowdown-slider';
+    slider.min = '1';
+    slider.max = '50';
+    slider.step = '1';
+    slider.value = params.visualSlowdownFactor;
+
+    slider.addEventListener('input', (e) => {
+        params.visualSlowdownFactor = parseFloat(e.target.value);
+        document.getElementById('slowdown-value').textContent = params.visualSlowdownFactor.toFixed(1);
+    });
+
+    slowdownGroup.appendChild(label);
+    slowdownGroup.appendChild(slider);
+
+    // Add to the controls panel before the button row
+    const controlsPanel = document.getElementById('controls-panel');
+    const buttonRow = controlsPanel.querySelector('.button-row');
+    controlsPanel.insertBefore(slowdownGroup, buttonRow);
 }
 
 function updateUIValues() {
@@ -285,12 +347,17 @@ function updateUIValues() {
         // Update voltage
         document.getElementById('voltage-value').textContent =
             (params.voltage / realParams.voltageScale).toFixed(0) + ' V';
+
+        // Update speed with realistic values
+        document.getElementById('speed-value').textContent =
+            (params.initialSpeed * 1e6).toFixed(1) + ' m/s';
     } else {
         // Regular mode
         document.getElementById('mass-value').textContent = params.particleMass.toFixed(1);
         document.getElementById('charge-value').textContent = params.particleCharge.toFixed(1);
         document.getElementById('magneticfield-value').textContent = params.magneticField.toFixed(1);
         document.getElementById('voltage-value').textContent = params.voltage.toFixed(1);
+        document.getElementById('speed-value').textContent = params.initialSpeed.toFixed(1);
     }
 }
 
@@ -476,7 +543,7 @@ function applyElectricField() {
 
 function updatePhysics() {
     if (params.particleExtracted) {
-        const deltaPosition = particleVelocity.clone().multiplyScalar(dt * params.timeScale);
+        const deltaPosition = particleVelocity.clone().multiplyScalar(dt * params.timeScale / params.visualSlowdownFactor);
         particlePosition.add(deltaPosition);
         particle.position.copy(particlePosition);
         return;
@@ -495,10 +562,12 @@ function updatePhysics() {
     const lorentzForce = calculateLorentzForce();
     const acceleration = lorentzForce.divideScalar(params.particleMass);
 
+    // Physics update at full speed
     const halfDt = dt * params.timeScale * 0.5;
     particleVelocity.add(acceleration.clone().multiplyScalar(halfDt));
 
-    const deltaPosition = particleVelocity.clone().multiplyScalar(dt * params.timeScale);
+    // Visual update slowed down by visualSlowdownFactor
+    const deltaPosition = particleVelocity.clone().multiplyScalar(dt * params.timeScale / params.visualSlowdownFactor);
     particlePosition.add(deltaPosition);
 
     const newLorentzForce = calculateLorentzForce();
@@ -520,7 +589,8 @@ function updatePhysics() {
         arrow.setLength(arrowLength);
     }
 
-    time += dt * params.timeScale;
+    // Time advances at the physics rate, not the visual rate
+    time += dt * params.timeScale / params.visualSlowdownFactor;
 }
 
 function updateStatsDisplay() {
@@ -538,11 +608,32 @@ function updateStatsDisplay() {
 
         // Use proper formatting with HTML entities and superscripts
         const velocityEl = document.getElementById('velocity-value');
-        velocityEl.innerHTML = (realSpeed / 1e6).toFixed(2) + ' × 10<sup>6</sup> m/s';
+        // Ensure visibility by using different formats based on speed
+        if (realSpeed > 1e8) {
+            velocityEl.innerHTML = (realSpeed / 1e8).toFixed(2) + ' × 10<sup>8</sup> m/s';
+        } else if (realSpeed > 1e6) {
+            velocityEl.innerHTML = (realSpeed / 1e6).toFixed(2) + ' × 10<sup>6</sup> m/s';
+        } else {
+            velocityEl.innerHTML = realSpeed.toFixed(0) + ' m/s';
+        }
         velocityEl.style.whiteSpace = 'nowrap';
 
-        document.getElementById('energy-value').textContent = realEnergyInMeV.toFixed(2) + ' MeV';
+        // Use appropriate energy units
+        const energyEl = document.getElementById('energy-value');
+        if (realEnergyInMeV > 1000) {
+            energyEl.textContent = (realEnergyInMeV / 1000).toFixed(2) + ' GeV';
+        } else if (realEnergyInMeV > 1) {
+            energyEl.textContent = realEnergyInMeV.toFixed(2) + ' MeV';
+        } else {
+            energyEl.textContent = (realEnergyInMeV * 1000).toFixed(0) + ' keV';
+        }
+
         document.getElementById('frequency-value').textContent = (cyclotronFrequency * 1e6).toFixed(3) + ' MHz';
+
+        // Add visual slowdown info
+        if (document.getElementById('slowdown-value')) {
+            document.getElementById('slowdown-value').textContent = params.visualSlowdownFactor.toFixed(1) + 'x';
+        }
     } else {
         document.getElementById('velocity-value').textContent = speed.toFixed(2) + ' Einh./s';
         document.getElementById('energy-value').textContent = kineticEnergy.toFixed(2) + ' Einh.';
