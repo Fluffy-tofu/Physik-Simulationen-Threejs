@@ -7,8 +7,8 @@ let isAnimating = false;
 let isRealisticMode = false;
 
 const params = {
-    particleMass: 1.0,
-    particleCharge: 0.4,
+    particleMass: 0.1, // Actual value is 0.1 but will display as 1.0
+    particleCharge: 0.1, // Actual value is 0.1 but will display as 1.0
     magneticField: 0.5,
     voltage: 3.0,
     initialRadius: 5.0,
@@ -18,19 +18,27 @@ const params = {
     extractionEnabled: false, // Disabled extraction by default
     particleExtracted: false,
     timeScale: 1.0,
-    visualSlowdownFactor: 1.0 // For slowing down high-speed visuals
+    visualSlowdownFactor: 1.0, // For slowing down high-speed visuals
+    selectedParticleType: 'proton' // Default particle type
 };
 
 const realParams = {
     protonMass: 1.6726e-27,
     protonCharge: 1.602e-19,
+    electronMass: 9.1094e-31,
+    electronCharge: -1.602e-19,
+    alphaMass: 6.6447e-27,    // 4 times proton mass
+    alphaCharge: 3.204e-19,   // 2 times proton charge
+    deuteronMass: 3.3436e-27, // roughly 2 times proton mass
+    deuteronCharge: 1.602e-19,
     maxMagneticField: 2.0,
     maxVoltage: 50000,
     speedScale: 1e-7,
     massScale: 1e27,
     chargeScale: 1e19,
     magneticFieldScale: 1,
-    voltageScale: 1e-4
+    voltageScale: 1e-4,
+    initialRealisticSpeed: 5e6 // 5 million m/s initial speed for realistic mode
 };
 
 let particleVelocity = new THREE.Vector3();
@@ -98,18 +106,20 @@ function setupUIControls() {
     const deesRadiusSlider = document.getElementById('deesradius-slider');
     const resetButton = document.getElementById('reset-button');
 
-    // Removed extraction toggle reference
+    // Set initial display values
+    document.getElementById('mass-value').textContent = "1.0";
+    document.getElementById('charge-value').textContent = "1.0";
 
     massSlider.addEventListener('input', (e) => {
         if (!isRealisticMode) {
-            params.particleMass = parseFloat(e.target.value);
+            params.particleMass = parseFloat(e.target.value) / 10; // Divide by 10 to get actual value
             updateUIValues();
         }
     });
 
     chargeSlider.addEventListener('input', (e) => {
         if (!isRealisticMode) {
-            params.particleCharge = parseFloat(e.target.value);
+            params.particleCharge = parseFloat(e.target.value) / 10; // Divide by 10 to get actual value
             updateUIValues();
         }
     });
@@ -248,27 +258,39 @@ function toggleRealisticMode() {
     if (isRealisticMode) {
         button.textContent = 'Einfache Werte aktivieren';
 
-        // Store original slider values
-        document.getElementById('mass-slider').disabled = true;
-        document.getElementById('charge-slider').disabled = true;
+        // Hide mass and charge sliders
+        const massGroup = document.getElementById('mass-group');
+        const chargeGroup = document.getElementById('charge-group');
 
-        // Set realistic values
-        params.particleMass = realParams.protonMass * realParams.massScale;
-        params.particleCharge = realParams.protonCharge * realParams.chargeScale;
-        params.magneticField = 1.5;
-        params.voltage = 20000 * realParams.voltageScale;
-        params.timeScale = 0.05; // Increased from 0.001 to make movement visible
-        params.initialSpeed = 2.0; // Give it a bit more initial speed
-        params.visualSlowdownFactor = 5.0; // Slow down visuals for high speeds
+        if (massGroup) massGroup.style.display = 'none';
+        if (chargeGroup) chargeGroup.style.display = 'none';
+
+        // Add particle selector
+        addParticleSelector();
+
+        // Set realistic values for proton (default)
+        setParticleProperties('proton');
 
         // Add slowdown factor control
         addSlowdownControl();
+
+        params.initialSpeed = realParams.initialRealisticSpeed;
+
     } else {
         button.textContent = 'Realistische Werte aktivieren';
 
-        // Re-enable sliders
-        document.getElementById('mass-slider').disabled = false;
-        document.getElementById('charge-slider').disabled = false;
+        // Show mass and charge sliders
+        const massGroup = document.getElementById('mass-group');
+        const chargeGroup = document.getElementById('charge-group');
+
+        if (massGroup) massGroup.style.display = 'block';
+        if (chargeGroup) chargeGroup.style.display = 'block';
+
+        // Remove particle selector if it exists
+        const particleSelectorGroup = document.getElementById('particle-selector-group');
+        if (particleSelectorGroup) {
+            particleSelectorGroup.remove();
+        }
 
         // Remove slowdown control if it exists
         const slowdownGroup = document.getElementById('slowdown-group');
@@ -276,8 +298,9 @@ function toggleRealisticMode() {
             slowdownGroup.remove();
         }
 
-        params.particleMass = 1.0;
-        params.particleCharge = 0.4;
+        // Reset to simple values
+        params.particleMass = 0.1; // Display as 1.0
+        params.particleCharge = 0.1; // Display as 1.0
         params.magneticField = 0.5;
         params.voltage = 3.0;
         params.timeScale = 1.0;
@@ -287,6 +310,91 @@ function toggleRealisticMode() {
 
     updateUIValues();
     resetSimulation();
+}
+
+function setParticleProperties(particleType) {
+    params.selectedParticleType = particleType;
+
+    switch(particleType) {
+        case 'proton':
+            params.particleMass = realParams.protonMass * realParams.massScale;
+            params.particleCharge = realParams.protonCharge * realParams.chargeScale;
+            break;
+        case 'electron':
+            params.particleMass = realParams.electronMass * realParams.massScale;
+            params.particleCharge = realParams.electronCharge * realParams.chargeScale;
+            break;
+        case 'alpha':
+            params.particleMass = realParams.alphaMass * realParams.massScale;
+            params.particleCharge = realParams.alphaCharge * realParams.chargeScale;
+            break;
+        case 'deuteron':
+            params.particleMass = realParams.deuteronMass * realParams.massScale;
+            params.particleCharge = realParams.deuteronCharge * realParams.chargeScale;
+            break;
+        default:
+            params.particleMass = realParams.protonMass * realParams.massScale;
+            params.particleCharge = realParams.protonCharge * realParams.chargeScale;
+    }
+
+    updateUIValues();
+    resetSimulation();
+}
+
+function addParticleSelector() {
+    // Check if the selector already exists
+    let particleGroup = document.getElementById('particle-selector-group');
+    if (particleGroup) {
+        return; // Already exists
+    }
+
+    // Create particle selector
+    particleGroup = document.createElement('div');
+    particleGroup.id = 'particle-selector-group';
+    particleGroup.className = 'control-group';
+
+    const label = document.createElement('label');
+    label.innerHTML = 'Teilchentyp:';
+    particleGroup.appendChild(label);
+
+    // Create radio buttons for each particle type
+    const particleTypes = [
+        {id: 'proton', name: 'Proton (p+)'},
+        {id: 'electron', name: 'Elektron (e-)'},
+        {id: 'alpha', name: 'Alpha-Teilchen (He²⁺)'},
+        {id: 'deuteron', name: 'Deuteron (²H⁺)'}
+    ];
+
+    particleTypes.forEach(particle => {
+        const radioContainer = document.createElement('div');
+        radioContainer.style.margin = '5px 0';
+
+        const radio = document.createElement('input');
+        radio.type = 'radio';
+        radio.id = particle.id;
+        radio.name = 'particle-type';
+        radio.value = particle.id;
+        radio.checked = params.selectedParticleType === particle.id;
+
+        radio.addEventListener('change', () => {
+            if (radio.checked) {
+                setParticleProperties(particle.id);
+            }
+        });
+
+        const radioLabel = document.createElement('label');
+        radioLabel.htmlFor = particle.id;
+        radioLabel.innerHTML = '&nbsp;' + particle.name;
+
+        radioContainer.appendChild(radio);
+        radioContainer.appendChild(radioLabel);
+        particleGroup.appendChild(radioContainer);
+    });
+
+    // Add to the controls panel at the beginning
+    const controlsPanel = document.getElementById('controls-panel');
+    const firstChild = controlsPanel.firstChild;
+    controlsPanel.insertBefore(particleGroup, firstChild.nextSibling);
 }
 
 function addSlowdownControl() {
@@ -303,15 +411,16 @@ function addSlowdownControl() {
 
     const label = document.createElement('label');
     label.htmlFor = 'slowdown-slider';
-    label.innerHTML = 'Zeitlupe-Faktor: <span id="slowdown-value" class="value-display">5.0</span>';
+    label.innerHTML = 'Zeitlupe-Faktor: <span id="slowdown-value" class="value-display">10.0</span>';
 
     const slider = document.createElement('input');
     slider.type = 'range';
     slider.id = 'slowdown-slider';
     slider.min = '1';
-    slider.max = '50';
+    slider.max = '100';
     slider.step = '1';
-    slider.value = params.visualSlowdownFactor;
+    slider.value = 10; // Default slowdown of 10x
+    params.visualSlowdownFactor = 10;
 
     slider.addEventListener('input', (e) => {
         params.visualSlowdownFactor = parseFloat(e.target.value);
@@ -330,15 +439,36 @@ function addSlowdownControl() {
 function updateUIValues() {
     // Create properly formatted values for realistic mode
     if (isRealisticMode) {
-        // Update mass with better formatting
-        const massEl = document.getElementById('mass-value');
-        massEl.innerHTML = '1.67 × 10<sup>-27</sup> kg';
-        massEl.style.whiteSpace = 'nowrap';
+        // Update particle properties based on selected type
+        const particleInfoEl = document.getElementById('mass-value');
+        const chargeInfoEl = document.getElementById('charge-value');
 
-        // Update charge with better formatting
-        const chargeEl = document.getElementById('charge-value');
-        chargeEl.innerHTML = '1.60 × 10<sup>-19</sup> C';
-        chargeEl.style.whiteSpace = 'nowrap';
+        if (particleInfoEl && chargeInfoEl) {
+            switch(params.selectedParticleType) {
+                case 'proton':
+                    particleInfoEl.innerHTML = '1.67 × 10<sup>-27</sup> kg';
+                    chargeInfoEl.innerHTML = '1.60 × 10<sup>-19</sup> C';
+                    break;
+                case 'electron':
+                    particleInfoEl.innerHTML = '9.11 × 10<sup>-31</sup> kg';
+                    chargeInfoEl.innerHTML = '-1.60 × 10<sup>-19</sup> C';
+                    break;
+                case 'alpha':
+                    particleInfoEl.innerHTML = '6.64 × 10<sup>-27</sup> kg';
+                    chargeInfoEl.innerHTML = '3.20 × 10<sup>-19</sup> C';
+                    break;
+                case 'deuteron':
+                    particleInfoEl.innerHTML = '3.34 × 10<sup>-27</sup> kg';
+                    chargeInfoEl.innerHTML = '1.60 × 10<sup>-19</sup> C';
+                    break;
+                default:
+                    particleInfoEl.innerHTML = '1.67 × 10<sup>-27</sup> kg';
+                    chargeInfoEl.innerHTML = '1.60 × 10<sup>-19</sup> C';
+            }
+
+            particleInfoEl.style.whiteSpace = 'nowrap';
+            chargeInfoEl.style.whiteSpace = 'nowrap';
+        }
 
         // Update magnetic field
         document.getElementById('magneticfield-value').textContent =
@@ -348,13 +478,21 @@ function updateUIValues() {
         document.getElementById('voltage-value').textContent =
             (params.voltage / realParams.voltageScale).toFixed(0) + ' V';
 
-        // Update speed with realistic values
-        document.getElementById('speed-value').textContent =
-            (params.initialSpeed * 1e6).toFixed(1) + ' m/s';
+        // Display initial speed in realistic values
+        const initialSpeedInMS = realParams.initialRealisticSpeed;
+        let speedDisplay;
+
+        if (initialSpeedInMS >= 1e6) {
+            speedDisplay = (initialSpeedInMS / 1e6).toFixed(1) + ' × 10⁶ m/s';
+        } else {
+            speedDisplay = initialSpeedInMS.toFixed(0) + ' m/s';
+        }
+
+        document.getElementById('speed-value').innerHTML = speedDisplay;
     } else {
-        // Regular mode
-        document.getElementById('mass-value').textContent = params.particleMass.toFixed(1);
-        document.getElementById('charge-value').textContent = params.particleCharge.toFixed(1);
+        // Regular mode - display values as 10x the actual values
+        document.getElementById('mass-value').textContent = (params.particleMass * 10).toFixed(1);
+        document.getElementById('charge-value').textContent = (params.particleCharge * 10).toFixed(1);
         document.getElementById('magneticfield-value').textContent = params.magneticField.toFixed(1);
         document.getElementById('voltage-value').textContent = params.voltage.toFixed(1);
         document.getElementById('speed-value').textContent = params.initialSpeed.toFixed(1);
@@ -378,9 +516,17 @@ function createParticle() {
     const cyclotronFrequency = (params.particleCharge * params.magneticField) / params.particleMass;
 
     let initialSpeedForCircularMotion = params.initialRadius * cyclotronFrequency;
-    initialSpeedForCircularMotion = Math.max(initialSpeedForCircularMotion, params.initialSpeed);
 
-    particleVelocity = new THREE.Vector3(0, 0, initialSpeedForCircularMotion);
+    // Set initial speed based on mode
+    let speedToUse;
+    if (isRealisticMode) {
+        // Convert the realistic speed from m/s to our internal units
+        speedToUse = realParams.initialRealisticSpeed / (3e8 * realParams.speedScale);
+    } else {
+        speedToUse = Math.max(initialSpeedForCircularMotion, params.initialSpeed);
+    }
+
+    particleVelocity = new THREE.Vector3(0, 0, speedToUse);
 
     scene.add(particle);
 
