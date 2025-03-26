@@ -8,11 +8,11 @@ let isRealisticMode = false;
 
 const params = {
     particleMass: 1.0,
-    particleCharge: 1.0,
+    particleCharge: 0.4,
     magneticField: 0.5,
     voltage: 3.0,
     initialRadius: 5.0,
-    initialSpeed: 4.5,
+    initialSpeed: 1.0,
     deesRadius: 25,
     extractionAngle: 0.15,
     extractionEnabled: true,
@@ -142,16 +142,36 @@ function setupUIControls() {
 
     resetButton.addEventListener('click', resetSimulation);
 
+    // Create realistic mode button and add to controls-panel
     const realisticModeButton = document.createElement('button');
     realisticModeButton.id = 'realistic-mode-button';
-    realisticModeButton.className = 'control-button';
+    realisticModeButton.className = 'panel-button';
+    realisticModeButton.style.width = '100%';
+    realisticModeButton.style.marginTop = '10px';
     realisticModeButton.textContent = 'Realistische Werte aktivieren';
     realisticModeButton.addEventListener('click', toggleRealisticMode);
 
-    const controlPanel = document.querySelector('.control-panel');
-    if (controlPanel) {
-        controlPanel.appendChild(realisticModeButton);
+    // Add button to the controls panel's button row
+    const controlsPanel = document.getElementById('controls-panel');
+    if (controlsPanel) {
+        const buttonRow = controlsPanel.querySelector('.button-row');
+        if (buttonRow) {
+            // Create a new div to hold both buttons to prevent layout issues
+            const newButtonRow = document.createElement('div');
+            newButtonRow.className = 'button-row';
+            newButtonRow.style.marginTop = '10px';
+            newButtonRow.appendChild(realisticModeButton);
+
+            // Insert after the existing button row
+            buttonRow.parentNode.insertBefore(newButtonRow, buttonRow.nextSibling);
+        } else {
+            controlsPanel.appendChild(realisticModeButton);
+        }
     } else {
+        // If controls panel not found, add to body with styling
+        realisticModeButton.className = 'control-button';
+        realisticModeButton.style.bottom = '20px';
+        realisticModeButton.style.right = '20px';
         document.body.appendChild(realisticModeButton);
     }
 
@@ -220,7 +240,7 @@ function toggleRealisticMode() {
         button.textContent = 'Realistische Werte aktivieren';
 
         params.particleMass = 1.0;
-        params.particleCharge = 1.0;
+        params.particleCharge = 0.4;
         params.magneticField = 0.5;
         params.voltage = 3.0;
         params.timeScale = 1.0;
@@ -231,16 +251,32 @@ function toggleRealisticMode() {
 }
 
 function updateUIValues() {
-    document.getElementById('mass-value').textContent = isRealisticMode ?
-        '1.67 × 10^-27 kg' : params.particleMass.toFixed(1);
-    document.getElementById('charge-value').textContent = isRealisticMode ?
-        '1.60 × 10^-19 C' : params.particleCharge.toFixed(1);
-    document.getElementById('magneticfield-value').textContent = isRealisticMode ?
-        (params.magneticField * realParams.magneticFieldScale).toFixed(1) + ' T' :
-        params.magneticField.toFixed(1);
-    document.getElementById('voltage-value').textContent = isRealisticMode ?
-        (params.voltage / realParams.voltageScale).toFixed(0) + ' V' :
-        params.voltage.toFixed(1);
+    // Create properly formatted values for realistic mode
+    if (isRealisticMode) {
+        // Update mass with better formatting
+        const massEl = document.getElementById('mass-value');
+        massEl.innerHTML = '1.67 × 10<sup>-27</sup> kg';
+        massEl.style.whiteSpace = 'nowrap';
+
+        // Update charge with better formatting
+        const chargeEl = document.getElementById('charge-value');
+        chargeEl.innerHTML = '1.60 × 10<sup>-19</sup> C';
+        chargeEl.style.whiteSpace = 'nowrap';
+
+        // Update magnetic field
+        document.getElementById('magneticfield-value').textContent =
+            (params.magneticField * realParams.magneticFieldScale).toFixed(1) + ' T';
+
+        // Update voltage
+        document.getElementById('voltage-value').textContent =
+            (params.voltage / realParams.voltageScale).toFixed(0) + ' V';
+    } else {
+        // Regular mode
+        document.getElementById('mass-value').textContent = params.particleMass.toFixed(1);
+        document.getElementById('charge-value').textContent = params.particleCharge.toFixed(1);
+        document.getElementById('magneticfield-value').textContent = params.magneticField.toFixed(1);
+        document.getElementById('voltage-value').textContent = params.voltage.toFixed(1);
+    }
 }
 
 function createParticle() {
@@ -537,7 +573,11 @@ function updateStatsDisplay() {
         const realEnergy = 0.5 * (realParams.protonMass) * realSpeed * realSpeed;
         const realEnergyInMeV = realEnergy * 6.242e12;
 
-        document.getElementById('velocity-value').textContent = (realSpeed / 1e6).toFixed(2) + ' × 10^6 m/s';
+        // Use proper formatting with HTML entities and superscripts
+        const velocityEl = document.getElementById('velocity-value');
+        velocityEl.innerHTML = (realSpeed / 1e6).toFixed(2) + ' × 10<sup>6</sup> m/s';
+        velocityEl.style.whiteSpace = 'nowrap';
+
         document.getElementById('energy-value').textContent = realEnergyInMeV.toFixed(2) + ' MeV';
         document.getElementById('frequency-value').textContent = (cyclotronFrequency * 1e6).toFixed(3) + ' MHz';
     } else {
