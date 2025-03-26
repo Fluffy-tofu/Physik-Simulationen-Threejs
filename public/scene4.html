@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Cyclotron Simulation</title>
+    <title>Zyklotron Simulation</title>
     <!-- Try a different CDN for MathJax -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script>
     <style>
@@ -203,58 +203,57 @@
     </style>
 </head>
 <body>
-<button id="startButton" class="control-button" style="top: 20px; left: 20px;">Start Animation</button>
-<a href="../index.html" class="control-button" style="top: 20px; right: 20px; text-decoration: none;">Back to Menu</a>
+<button id="startButton" class="control-button" style="top: 20px; left: 20px;">Animation starten</button>
+<a href="../index.html" class="control-button" style="top: 20px; right: 20px; text-decoration: none;">Zurück zum Menü</a>
 
 <!-- Stats Display -->
 <div id="stats-display">
-    <h3>Cyclotron Data</h3>
+    <h3>Zyklotron Daten</h3>
     <table>
-        <tr><td>Velocity:</td><td id="velocity-value">0.00 units/s</td></tr>
-        <tr><td>Radius:</td><td id="radius-value">0.00 units</td></tr>
-        <tr><td>Energy:</td><td id="energy-value">0.00 units</td></tr>
-        <tr><td>Frequency:</td><td id="frequency-value">0.00 Hz</td></tr>
-        <tr><td>Time:</td><td id="time-value">0.00 s</td></tr>
-        <tr><td>Status:</td><td id="status">Ready</td></tr>
+        <tr><td>Geschwindigkeit:</td><td id="velocity-value">0.00 Einh./s</td></tr>
+        <tr><td>Radius:</td><td id="radius-value">0.00 Einh.</td></tr>
+        <tr><td>Energie:</td><td id="energy-value">0.00 Einh.</td></tr>
+        <tr><td>Frequenz:</td><td id="frequency-value">0.00 Hz</td></tr>
+        <tr><td>Zeit:</td><td id="time-value">0.00 s</td></tr>
+        <tr><td>Status:</td><td id="status">Bereit</td></tr>
     </table>
 </div>
 
 <!-- Controls Panel -->
 <div id="controls-panel">
-    <h3>Simulation Controls</h3>
+    <h3>Simulationssteuerung</h3>
     <div class="control-group">
-        <label for="mass-slider">Particle Mass: <span id="mass-value" class="value-display">1.0</span></label>
+        <label for="mass-slider">Teilchenmasse: <span id="mass-value" class="value-display">1.0</span></label>
         <input type="range" id="mass-slider" min="0.1" max="5" step="0.1" value="1.0">
     </div>
 
     <div class="control-group">
-        <label for="charge-slider">Particle Charge: <span id="charge-value" class="value-display">1.0</span></label>
-        <input type="range" id="charge-slider" min="0.1" max="5" step="0.1" value="1.0">
+        <label for="charge-slider">Teilchenladung: <span id="charge-value" class="value-display">0.4</span></label>
+        <input type="range" id="charge-slider" min="0.1" max="5" step="0.1" value="0.4">
     </div>
 
     <div class="control-group">
-        <label for="magneticfield-slider">Magnetic Field: <span id="magneticfield-value" class="value-display">0.5</span></label>
+        <label for="magneticfield-slider">Magnetfeld: <span id="magneticfield-value" class="value-display">0.5</span></label>
         <input type="range" id="magneticfield-slider" min="0.1" max="3" step="0.1" value="0.5">
     </div>
 
     <div class="control-group">
-        <!-- Changed from Electric Potential to Voltage -->
-        <label for="voltage-slider">Voltage: <span id="voltage-value" class="value-display">3.0</span></label>
+        <label for="voltage-slider">Spannung: <span id="voltage-value" class="value-display">3.0</span></label>
         <input type="range" id="voltage-slider" min="0.5" max="10" step="0.1" value="3.0">
     </div>
 
     <div class="control-group">
-        <label for="speed-slider">Initial Speed: <span id="speed-value" class="value-display">3.0</span></label>
-        <input type="range" id="speed-slider" min="0.1" max="5" step="0.1" value="3.0">
+        <label for="speed-slider">Anfangsgeschwindigkeit: <span id="speed-value" class="value-display">1.0</span></label>
+        <input type="range" id="speed-slider" min="0.1" max="5" step="0.1" value="1.0">
     </div>
 
     <div class="control-group">
-        <label for="deesradius-slider">Dees Size: <span id="deesradius-value" class="value-display">30</span></label>
-        <input type="range" id="deesradius-slider" min="10" max="50" step="1" value="30">
+        <label for="deesradius-slider">Dee-Größe: <span id="deesradius-value" class="value-display">25</span></label>
+        <input type="range" id="deesradius-slider" min="10" max="50" step="1" value="25">
     </div>
 
     <div class="button-row">
-        <button id="reset-button" class="panel-button">Reset</button>
+        <button id="reset-button" class="panel-button">Zurücksetzen</button>
     </div>
 </div>
 
@@ -285,9 +284,6 @@
         <h4>Teilchenbahn:</h4>
         <p>Die Teilchenbahn im Zyklotron besteht aus Halbkreisen mit zunehmendem Radius, da das Teilchen bei jedem Durchgang durch die Lücke an Geschwindigkeit gewinnt. Der theoretische Radius für eine bestimmte Geschwindigkeit beträgt:</p>
         <p>$$r = \frac{mv}{qB}$$</p>
-
-        <h4>Extraktionsphysik:</h4>
-        <p>Wenn das Teilchen den Radius der Dees erreicht, wird es entweder extrahiert (wenn es sich am Extraktionswinkel befindet) oder reflektiert (wenn es auf die Dee-Wand trifft).</p>
     </div>
 </div>
 
