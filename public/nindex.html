@@ -361,6 +361,12 @@
       }
     }
 </script>
-<script type="module" src="/Nmain.js"></script>
+<script type="module">
+    import { HallEffectSimulation } from '/nmain.js';
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const simulation = new HallEffectSimulation();
+    });
+</script>
 </body>
 </html>
