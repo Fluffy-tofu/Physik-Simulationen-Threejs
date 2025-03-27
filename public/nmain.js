@@ -156,35 +156,24 @@ export class HallEffectSimulation {
     }
 
     createHallVoltageArrows() {
-        const arrowLength = this.CONDUCTOR_WIDTH * 0.8; 
-        const arrowHeight = 0.3; 
+    const arrowPosZ = new THREE.ArrowHelper(
+        new THREE.Vector3(0, 0, 1),        
+        new THREE.Vector3(0, 0, 0),        
+        this.CONDUCTOR_WIDTH,              
+        0xffff00                           
+    );
+    this.scene.add(arrowPosZ);
+    this.hallVoltageArrows.push({ arrow: arrowPosZ, side: "posZ" });
 
-        const arrowPosZ = new THREE.ArrowHelper(
-            new THREE.Vector3(0, 0, -1),        
-            new THREE.Vector3(0, arrowHeight, -this.CONDUCTOR_WIDTH / 2),      
-            arrowLength,              
-            0xffff00                           
-        );
-        arrowPosZ.line.material.linewidth = 6; 
-        arrowPosZ.cone.scale.set(1.5, 1.5, 1.5); 
-        this.scene.add(arrowPosZ);
-        this.hallVoltageArrows.push({ arrow: arrowPosZ, side: "posZ" });
-
-        const arrowNegZ = new THREE.ArrowHelper(
-            new THREE.Vector3(0, 0, 1),       
-            new THREE.Vector3(0, arrowHeight, this.CONDUCTOR_WIDTH / 2),    
-            arrowLength,              
-            0xffff00                        
-        );
-        arrowNegZ.line.material.linewidth = 6;
-        arrowNegZ.cone.scale.set(1.5, 1.5, 1.5); 
-        this.scene.add(arrowNegZ);
-        this.hallVoltageArrows.push({ arrow: arrowNegZ, side: "negZ" });
-        
-        this.hallVoltageArrows.forEach(arrowObj => {
-            arrowObj.arrow.visible = false;
-        });
-    }
+    const arrowNegZ = new THREE.ArrowHelper(
+        new THREE.Vector3(0, 0, -1),       
+        new THREE.Vector3(0, 0, 0),      
+        this.CONDUCTOR_WIDTH,              
+        0xffff00                        
+    );
+    this.scene.add(arrowNegZ);
+    this.hallVoltageArrows.push({ arrow: arrowNegZ, side: "negZ" });
+}
 
     createMagnet() {
         this.magnetGroup = new THREE.Group();
@@ -437,50 +426,24 @@ export class HallEffectSimulation {
             hallVoltageElement.textContent = `Hall-Spannung: ${hallVoltage.toFixed(2)} V`;
         }
 
-        this.updateChargeIndicators();
-
         this.hallVoltageArrows.forEach(arrowObj => {
             const arrow = arrowObj.arrow;
             const side = arrowObj.side;
-            const shouldBeVisible = Math.abs(hallVoltage) > 0.02;
-is
+            const shouldBeVisible = Math.abs(hallVoltage) > 0.1;
+            
             if (hallCoefficient < 0) {
-                if (side === "posZ") {
-                    arrow.position.set(0, 0.3, this.chargeIndicators.minus.position.z);
-                } else {
-                    arrow.position.set(0, 0.3, this.chargeIndicators.plus.position.z);
-                }
                 arrow.visible = shouldBeVisible && side === "posZ";
             } else {
-                if (side === "posZ") {
-                    arrow.position.set(0, 0.3, this.chargeIndicators.plus.position.z);
-                } else {
-                    arrow.position.set(0, 0.3, this.chargeIndicators.minus.position.z);
-                }
                 arrow.visible = shouldBeVisible && side === "negZ";
             }
             
             if (arrow.visible && shouldBeVisible) {
-                const baseScale = 0.75;
-                const amplification = 3.0;
-                const maxScale = 4.0; 
-                
-
-                const voltageEffect = Math.pow(Math.abs(hallVoltage), 1.2) * amplification;
-                const scale = Math.max(baseScale, Math.min(maxScale, baseScale + voltageEffect));
-                
+                const scale = Math.max(0.5, Math.min(2, Math.abs(hallVoltage)));
                 arrow.scale.set(scale, scale, scale);
-                
-                const intensity = Math.min(1, Math.abs(hallVoltage) * 2);
-                const color = new THREE.Color(
-                    1, 
-                    1 - (intensity * 0.3), 
-                    0  
-                );
-                arrow.line.material.color.copy(color);
-                arrow.cone.material.color.copy(color);
             }
         });
+
+        this.updateChargeIndicators();
 
         return hallVoltage;
     }
@@ -919,3 +882,4 @@ is
         this.renderer.render(this.scene, this.camera);
     }
 }
+
