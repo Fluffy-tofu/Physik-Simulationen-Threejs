@@ -20,7 +20,7 @@ Eine Sammlung interaktiver 3D-Physiksimulationen, die mit Three.js entwickelt wu
 - Demonstration der Geschwindigkeitsselektion geladener Teilchen
 - Anzeige der Lorentzkraft und ihrer Auswirkungen
 
-### 3. Massenspektrometer nach Bainbridge
+### 3. Massenspektrometer 
 - Vollständige Simulation eines Massenspektrometers
 - Visualisierung der Ablenkung von Ionen unterschiedlicher Masse
 - Darstellung von Magnetfeld und elektrischem Feld
