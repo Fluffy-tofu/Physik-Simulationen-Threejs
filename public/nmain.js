@@ -76,6 +76,7 @@ export class HallEffectSimulation {
         this.createMagnet();
         this.createElectrons(15);
         this.createChargeIndicators();
+        this.createHallVoltageArrows();
 
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);
         this.controls.enableDamping = true;
@@ -153,6 +154,26 @@ export class HallEffectSimulation {
         const plusLabel = addLabel("+", plusPos);
         this.scene.add(plusLabel);
     }
+
+    createHallVoltageArrows() {
+    const arrowPosZ = new THREE.ArrowHelper(
+        new THREE.Vector3(0, 0, 1),        
+        new THREE.Vector3(0, 0, 0),        
+        this.CONDUCTOR_WIDTH,              
+        0xffff00                           
+    );
+    this.scene.add(arrowPosZ);
+    this.hallVoltageArrows.push({ arrow: arrowPosZ, side: "posZ" });
+
+    const arrowNegZ = new THREE.ArrowHelper(
+        new THREE.Vector3(0, 0, -1),       
+        new THREE.Vector3(0, 0, 0),      
+        this.CONDUCTOR_WIDTH,              
+        0xffff00                        
+    );
+    this.scene.add(arrowNegZ);
+    this.hallVoltageArrows.push({ arrow: arrowNegZ, side: "negZ" });
+}
 
     createMagnet() {
         this.magnetGroup = new THREE.Group();
