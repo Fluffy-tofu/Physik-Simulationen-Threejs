@@ -160,7 +160,7 @@ export class HallEffectSimulation {
         const arrowHeight = 0.3; 
 
         const arrowPosZ = new THREE.ArrowHelper(
-            new THREE.Vector3(0, 0, -1),        
+            new THREE.Vector3(0, 0, 1),     
             new THREE.Vector3(0, arrowHeight, -this.CONDUCTOR_WIDTH / 2),      
             arrowLength,              
             0xffff00                           
@@ -171,7 +171,7 @@ export class HallEffectSimulation {
         this.hallVoltageArrows.push({ arrow: arrowPosZ, side: "posZ" });
 
         const arrowNegZ = new THREE.ArrowHelper(
-            new THREE.Vector3(0, 0, 1),       
+            new THREE.Vector3(0, 0, -1),     
             new THREE.Vector3(0, arrowHeight, this.CONDUCTOR_WIDTH / 2),    
             arrowLength,              
             0xffff00                        
@@ -307,13 +307,13 @@ export class HallEffectSimulation {
                 0x00ff00
             ),
             Fl: new THREE.ArrowHelper(
-                new THREE.Vector3(0, 0, -1),
+                new THREE.Vector3(0, 0, 1),
                 electron.position,
                 this.ARROW_LENGTH,
                 0x0000ff
             ),
             Fe: new THREE.ArrowHelper(
-                new THREE.Vector3(0, 0, 1),
+                new THREE.Vector3(0, 0, -1),
                 electron.position,
                 this.ARROW_LENGTH,
                 0xff00ff
@@ -403,15 +403,15 @@ export class HallEffectSimulation {
     updateChargeIndicators() {
         const hallCoefficient = this.getHallCoefficient();
         if (hallCoefficient < 0) {
-            this.chargeIndicators.plus.position.set(0, 0, -this.CONDUCTOR_WIDTH / 2);
-            this.chargeIndicators.minus.position.set(0, 0, this.CONDUCTOR_WIDTH / 2);
-            this.chargeIndicators.plusLabel.position.set(0.3, 0, -this.CONDUCTOR_WIDTH / 2);
-            this.chargeIndicators.minusLabel.position.set(0.3, 0, this.CONDUCTOR_WIDTH / 2);
-        } else {
             this.chargeIndicators.plus.position.set(0, 0, this.CONDUCTOR_WIDTH / 2);
             this.chargeIndicators.minus.position.set(0, 0, -this.CONDUCTOR_WIDTH / 2);
             this.chargeIndicators.plusLabel.position.set(0.3, 0, this.CONDUCTOR_WIDTH / 2);
             this.chargeIndicators.minusLabel.position.set(0.3, 0, -this.CONDUCTOR_WIDTH / 2);
+        } else {
+            this.chargeIndicators.plus.position.set(0, 0, -this.CONDUCTOR_WIDTH / 2);
+            this.chargeIndicators.minus.position.set(0, 0, this.CONDUCTOR_WIDTH / 2);
+            this.chargeIndicators.plusLabel.position.set(0.3, 0, -this.CONDUCTOR_WIDTH / 2);
+            this.chargeIndicators.minusLabel.position.set(0.3, 0, this.CONDUCTOR_WIDTH / 2);
         }
     }
 
@@ -450,7 +450,7 @@ export class HallEffectSimulation {
                 } else {
                     arrow.position.set(0, 0.3, this.chargeIndicators.plus.position.z);
                 }
-                arrow.visible = shouldBeVisible && side === "posZ";
+                arrow.visible = shouldBeVisible && side === "posZ"; 
             } else {
                 if (side === "posZ") {
                     arrow.position.set(0, 0.3, this.chargeIndicators.plus.position.z);
@@ -466,7 +466,7 @@ export class HallEffectSimulation {
                 const maxScale = 4.0; 
                 
 
-                const voltageEffect = Math.pow(Math.abs(hallVoltage), 1.2) * amplification;
+                const voltageEffect = Math.pow(Math.abs(hallVoltage), 0.8) * amplification;
                 const scale = Math.max(baseScale, Math.min(maxScale, baseScale + voltageEffect));
                 
                 arrow.scale.set(scale, scale, scale);
@@ -860,7 +860,7 @@ export class HallEffectSimulation {
                 const lorentzForce = hallVoltage * 0.01;
                 const electricForce = lorentzForce * (electron.position.z / (this.CONDUCTOR_WIDTH / 2));
                 const netForce = lorentzForce - electricForce;
-                electron.position.z -= netForce;
+                electron.position.z += netForce; 
 
                 const arrowSet = this.arrows.get(electron);
                 if (arrowSet) {
