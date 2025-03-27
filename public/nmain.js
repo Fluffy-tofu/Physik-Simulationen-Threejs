@@ -443,7 +443,7 @@ export class HallEffectSimulation {
             const arrow = arrowObj.arrow;
             const side = arrowObj.side;
             const shouldBeVisible = Math.abs(hallVoltage) > 0.02;
-is
+
             if (hallCoefficient < 0) {
                 if (side === "posZ") {
                     arrow.position.set(0, 0.3, this.chargeIndicators.minus.position.z);
