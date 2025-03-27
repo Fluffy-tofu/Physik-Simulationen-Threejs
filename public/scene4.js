@@ -38,7 +38,8 @@ const realParams = {
     chargeScale: 1e19,
     magneticFieldScale: 1,
     voltageScale: 1e-4,
-    initialRealisticSpeed: 5e6 // 5 million m/s initial speed for realistic mode
+    initialRealisticSpeed: 5e5, // Reduced to 500,000 m/s initial speed
+    maxRadius: 40 // Maximum radius to prevent particle from disappearing
 };
 
 let particleVelocity = new THREE.Vector3();
@@ -69,7 +70,7 @@ function initScene() {
     scene.background = new THREE.Color(colors.background);
 
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.set(0, 40, 30);
+    camera.position.set(0, 60, 50); // Increased camera height and distance to see larger radius
     camera.lookAt(0, 0, 0);
 
     renderer = new THREE.WebGLRenderer({
@@ -86,10 +87,10 @@ function initScene() {
     pointLight.position.set(10, 20, 10);
     scene.add(pointLight);
 
-    const axesHelper = new THREE.AxesHelper(20);
+    const axesHelper = new THREE.AxesHelper(40); // Increased size
     scene.add(axesHelper);
 
-    const gridHelper = new THREE.GridHelper(100, 20, colors.grid, colors.grid);
+    const gridHelper = new THREE.GridHelper(200, 40, colors.grid, colors.grid); // Larger grid
     scene.add(gridHelper);
 
     controls = new OrbitControls(camera, renderer.domElement);
@@ -252,61 +253,93 @@ function translateUIToGerman() {
 }
 
 function toggleRealisticMode() {
-    isRealisticMode = !isRealisticMode;
+    // If we're turning ON realistic mode, show warning first
+    if (!isRealisticMode) {
+        // Show the warning modal
+        const modal = document.getElementById('warning-modal');
+        modal.style.display = 'block';
+
+        // Setup the accept button
+        const acceptButton = document.getElementById('accept-button');
+        acceptButton.onclick = function() {
+            modal.style.display = 'none';
+            // Continue with enabling realistic mode
+            enableRealisticMode();
+        };
+
+        // Don't proceed further until accept is clicked
+        return;
+    } else {
+        // If we're turning OFF realistic mode, just do it directly
+        disableRealisticMode();
+    }
+}
+
+function enableRealisticMode() {
+    isRealisticMode = true;
 
     const button = document.getElementById('realistic-mode-button');
-    if (isRealisticMode) {
-        button.textContent = 'Einfache Werte aktivieren';
+    button.textContent = 'Einfache Werte aktivieren';
 
-        // Hide mass and charge sliders
-        const massGroup = document.getElementById('mass-group');
-        const chargeGroup = document.getElementById('charge-group');
+    // Hide mass and charge sliders
+    const massGroup = document.getElementById('mass-group');
+    const chargeGroup = document.getElementById('charge-group');
 
-        if (massGroup) massGroup.style.display = 'none';
-        if (chargeGroup) chargeGroup.style.display = 'none';
+    if (massGroup) massGroup.style.display = 'none';
+    if (chargeGroup) chargeGroup.style.display = 'none';
 
-        // Add particle selector
-        addParticleSelector();
+    // Add particle selector
+    addParticleSelector();
 
-        // Set realistic values for proton (default)
-        setParticleProperties('proton');
+    // Set realistic values for electron (now default since proton was removed)
+    setParticleProperties('electron');
 
-        // Add slowdown factor control
-        addSlowdownControl();
+    // Add slowdown factor control
+    addSlowdownControl();
 
-        params.initialSpeed = realParams.initialRealisticSpeed;
+    // Adjust simulation parameters for realistic mode
+    params.initialSpeed = 2.0; // Use a moderate speed that works well
+    params.magneticField = 3.0; // Moderate magnetic field for good curvature
+    params.voltage = 5000 * realParams.voltageScale;
+    params.timeScale = 0.01; // Slow time progression
 
-    } else {
-        button.textContent = 'Realistische Werte aktivieren';
+    updateUIValues();
+    resetSimulation();
+}
 
-        // Show mass and charge sliders
-        const massGroup = document.getElementById('mass-group');
-        const chargeGroup = document.getElementById('charge-group');
+function disableRealisticMode() {
+    isRealisticMode = false;
 
-        if (massGroup) massGroup.style.display = 'block';
-        if (chargeGroup) chargeGroup.style.display = 'block';
+    const button = document.getElementById('realistic-mode-button');
+    button.textContent = 'Realistische Werte aktivieren';
 
-        // Remove particle selector if it exists
-        const particleSelectorGroup = document.getElementById('particle-selector-group');
-        if (particleSelectorGroup) {
-            particleSelectorGroup.remove();
-        }
+    // Show mass and charge sliders
+    const massGroup = document.getElementById('mass-group');
+    const chargeGroup = document.getElementById('charge-group');
 
-        // Remove slowdown control if it exists
-        const slowdownGroup = document.getElementById('slowdown-group');
-        if (slowdownGroup) {
-            slowdownGroup.remove();
-        }
+    if (massGroup) massGroup.style.display = 'block';
+    if (chargeGroup) chargeGroup.style.display = 'block';
 
-        // Reset to simple values
-        params.particleMass = 0.1; // Display as 1.0
-        params.particleCharge = 0.1; // Display as 1.0
-        params.magneticField = 0.5;
-        params.voltage = 3.0;
-        params.timeScale = 1.0;
-        params.initialSpeed = 1.0;
-        params.visualSlowdownFactor = 1.0;
+    // Remove particle selector if it exists
+    const particleSelectorGroup = document.getElementById('particle-selector-group');
+    if (particleSelectorGroup) {
+        particleSelectorGroup.remove();
     }
+
+    // Remove slowdown control if it exists
+    const slowdownGroup = document.getElementById('slowdown-group');
+    if (slowdownGroup) {
+        slowdownGroup.remove();
+    }
+
+    // Reset to simple values
+    params.particleMass = 0.1; // Display as 1.0
+    params.particleCharge = 0.1; // Display as 1.0
+    params.magneticField = 0.5;
+    params.voltage = 3.0;
+    params.timeScale = 1.0;
+    params.initialSpeed = 1.0;
+    params.visualSlowdownFactor = 1.0;
 
     updateUIValues();
     resetSimulation();
@@ -316,10 +349,6 @@ function setParticleProperties(particleType) {
     params.selectedParticleType = particleType;
 
     switch(particleType) {
-        case 'proton':
-            params.particleMass = realParams.protonMass * realParams.massScale;
-            params.particleCharge = realParams.protonCharge * realParams.chargeScale;
-            break;
         case 'electron':
             params.particleMass = realParams.electronMass * realParams.massScale;
             params.particleCharge = realParams.electronCharge * realParams.chargeScale;
@@ -333,8 +362,8 @@ function setParticleProperties(particleType) {
             params.particleCharge = realParams.deuteronCharge * realParams.chargeScale;
             break;
         default:
-            params.particleMass = realParams.protonMass * realParams.massScale;
-            params.particleCharge = realParams.protonCharge * realParams.chargeScale;
+            params.particleMass = realParams.electronMass * realParams.massScale;
+            params.particleCharge = realParams.electronCharge * realParams.chargeScale;
     }
 
     updateUIValues();
@@ -357,9 +386,8 @@ function addParticleSelector() {
     label.innerHTML = 'Teilchentyp:';
     particleGroup.appendChild(label);
 
-    // Create radio buttons for each particle type
+    // Create radio buttons for each particle type (removed proton)
     const particleTypes = [
-        {id: 'proton', name: 'Proton (p+)'},
         {id: 'electron', name: 'Elektron (e-)'},
         {id: 'alpha', name: 'Alpha-Teilchen (He²⁺)'},
         {id: 'deuteron', name: 'Deuteron (²H⁺)'}
@@ -411,16 +439,16 @@ function addSlowdownControl() {
 
     const label = document.createElement('label');
     label.htmlFor = 'slowdown-slider';
-    label.innerHTML = 'Zeitlupe-Faktor: <span id="slowdown-value" class="value-display">10.0</span>';
+    label.innerHTML = 'Zeitlupe-Faktor: <span id="slowdown-value" class="value-display">50.0</span>';
 
     const slider = document.createElement('input');
     slider.type = 'range';
     slider.id = 'slowdown-slider';
-    slider.min = '1';
-    slider.max = '100';
-    slider.step = '1';
-    slider.value = 10; // Default slowdown of 10x
-    params.visualSlowdownFactor = 10;
+    slider.min = '10';
+    slider.max = '500';
+    slider.step = '10';
+    slider.value = 50; // Default slowdown of 50x
+    params.visualSlowdownFactor = 50;
 
     slider.addEventListener('input', (e) => {
         params.visualSlowdownFactor = parseFloat(e.target.value);
@@ -509,27 +537,31 @@ function createParticle() {
 
     particle = new THREE.Mesh(geometry, material);
 
+    // Keep original position for both modes - position on X axis
     particle.position.set(params.initialRadius, 0, 0);
     particlePosition = particle.position.clone();
     previousPosition = particle.position.clone();
 
-    const cyclotronFrequency = (params.particleCharge * params.magneticField) / params.particleMass;
+    // Calculate the cyclotron frequency
+    const cyclotronFrequency = (Math.abs(params.particleCharge) * params.magneticField) / params.particleMass;
 
-    let initialSpeedForCircularMotion = params.initialRadius * cyclotronFrequency;
-
-    // Set initial speed based on mode
+    // Calculate initial velocity
     let speedToUse;
     if (isRealisticMode) {
-        // Convert the realistic speed from m/s to our internal units
-        speedToUse = realParams.initialRealisticSpeed / (3e8 * realParams.speedScale);
+        // Lower speed for realistic mode to ensure better visibility
+        speedToUse = 2.0;
     } else {
+        // For non-realistic mode, keep the original calculation
+        const initialSpeedForCircularMotion = params.initialRadius * cyclotronFrequency;
         speedToUse = Math.max(initialSpeedForCircularMotion, params.initialSpeed);
     }
 
+    // Set initial velocity in Z direction as it was originally
     particleVelocity = new THREE.Vector3(0, 0, speedToUse);
 
     scene.add(particle);
 
+    // Add velocity arrow
     const arrowHelper = new THREE.ArrowHelper(
         particleVelocity.clone().normalize(),
         particlePosition,
@@ -544,9 +576,12 @@ function createDees() {
     const gapSize = 2.0;
     const halfGap = gapSize / 2;
 
+    // For realistic mode, make dees larger
+    const effectiveDeesRadius = isRealisticMode ? Math.max(params.deesRadius, realParams.maxRadius) : params.deesRadius;
+
     const deeGeometry1 = new THREE.CylinderGeometry(
-        params.deesRadius,
-        params.deesRadius,
+        effectiveDeesRadius,
+        effectiveDeesRadius,
         0.5,
         32,
         1,
@@ -556,8 +591,8 @@ function createDees() {
     );
 
     const deeGeometry2 = new THREE.CylinderGeometry(
-        params.deesRadius,
-        params.deesRadius,
+        effectiveDeesRadius,
+        effectiveDeesRadius,
         0.5,
         32,
         1,
@@ -593,10 +628,14 @@ function createDees() {
 }
 
 function calculateLorentzForce() {
+    // Magnetic field is in the Y direction (up)
     const B_field = new THREE.Vector3(0, params.magneticField, 0);
 
+    // Calculate v × B (cross product of velocity and magnetic field)
     const force = new THREE.Vector3();
     force.crossVectors(particleVelocity, B_field);
+
+    // Scale by charge (F = q * v × B)
     force.multiplyScalar(params.particleCharge);
 
     return force;
@@ -695,10 +734,24 @@ function updatePhysics() {
         return;
     }
 
+    // Calculate current radius
     const radius = Math.sqrt(particlePosition.x * particlePosition.x + particlePosition.z * particlePosition.z);
 
-    if (radius > params.deesRadius) {
-        // Simplified extraction logic - particle just stops
+    // Check if radius exceeds maximum radius in realistic mode
+    if (isRealisticMode && radius > realParams.maxRadius) {
+        // Keep particle within visible area by scaling it back
+        const scale = realParams.maxRadius / radius;
+        particlePosition.x *= scale;
+        particlePosition.z *= scale;
+
+        // Reduce speed slightly to prevent rapid expansion
+        particleVelocity.multiplyScalar(0.99);
+
+        // Update particle position
+        particle.position.copy(particlePosition);
+    }
+    else if (radius > params.deesRadius) {
+        // Standard behavior for hitting dee walls in normal mode
         isAnimating = false;
         return;
     }
@@ -735,7 +788,7 @@ function updatePhysics() {
         arrow.setLength(arrowLength);
     }
 
-    // Time advances at the physics rate, not the visual rate
+    // Time advances at a rate scaled by visual slowdown factor
     time += dt * params.timeScale / params.visualSlowdownFactor;
 }
 

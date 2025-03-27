@@ -200,6 +200,55 @@
             margin-top: 5px;
             margin-bottom: 5px;
         }
+
+        /* Warning modal dialog styles */
+        #warning-modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: #222;
+            color: white;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #444;
+            border-radius: 8px;
+            width: 50%;
+            max-width: 500px;
+        }
+
+        .modal-content h2 {
+            color: #ff5555;
+            margin-top: 0;
+        }
+
+        .modal-content p {
+            margin: 15px 0;
+            line-height: 1.5;
+        }
+
+        .modal-button {
+            background-color: #ff5555;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            margin-top: 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            float: right;
+        }
+
+        .modal-button:hover {
+            background-color: #ff7777;
+        }
     </style>
 </head>
 <body>
@@ -258,6 +307,16 @@
     </div>
 </div>
 
+<!-- Warning Modal Dialog -->
+<div id="warning-modal">
+    <div class="modal-content">
+        <h2>⚠️ Warnung</h2>
+        <p>Der realistische Modus befindet sich noch in der Entwicklung und funktioniert möglicherweise nicht ordnungsgemäß. Die Simulation kann instabil sein oder unerwartetes Verhalten zeigen.</p>
+        <p>Möchten Sie trotzdem fortfahren?</p>
+        <button id="accept-button" class="modal-button">Akzeptieren</button>
+    </div>
+</div>
+
 <!-- German Formulas Dropdown using ordinary button and div -->
 <div id="formulas-container">
     <button id="formulas-toggle">Formeln anzeigen ▼</button>
@@ -266,25 +325,25 @@
 
         <h4>Grundlegende Formeln:</h4>
         <ul>
-            <li><strong>Lorentz-Kraft:</strong> $$\vec{F} = q(\vec{v} \times \vec{B})$$</li>
-            <li><strong>Zyklotronfrequenz:</strong> $$f = \frac{qB}{2\pi m}$$</li>
-            <li><strong>Kreisbahnradius:</strong> $$r = \frac{mv}{qB}$$</li>
-            <li><strong>Kinetische Energie:</strong> $$E_{kin} = \frac{1}{2}mv^2$$</li>
-            <li><strong>Energiegewinn pro Lückenüberquerung:</strong> $$\Delta E = q \cdot U$$</li>
+            <li><strong>Lorentz-Kraft:</strong> $\vec{F} = q(\vec{v} \times \vec{B})$</li>
+            <li><strong>Zyklotronfrequenz:</strong> $f = \frac{qB}{2\pi m}$</li>
+            <li><strong>Kreisbahnradius:</strong> $r = \frac{mv}{qB}$</li>
+            <li><strong>Kinetische Energie:</strong> $E_{kin} = \frac{1}{2}mv^2$</li>
+            <li><strong>Energiegewinn pro Lückenüberquerung:</strong> $\Delta E = q \cdot U$</li>
         </ul>
 
         <h4>Geschwindigkeitsberechnung:</h4>
         <p>Nach dem Durchqueren der Lücke wird die neue Geschwindigkeit wie folgt berechnet:</p>
         <ol>
-            <li>Aktuelle kinetische Energie: $$E_{kin} = \frac{1}{2}mv^2$$</li>
-            <li>Energiegewinn: $$\Delta E = q \cdot U$$</li>
-            <li>Neue kinetische Energie: $$E_{kin,neu} = E_{kin} + \Delta E$$</li>
-            <li>Neue Geschwindigkeit: $$v_{neu} = \sqrt{\frac{2 \cdot E_{kin,neu}}{m}}$$</li>
+            <li>Aktuelle kinetische Energie: $E_{kin} = \frac{1}{2}mv^2$</li>
+            <li>Energiegewinn: $\Delta E = q \cdot U$</li>
+            <li>Neue kinetische Energie: $E_{kin,neu} = E_{kin} + \Delta E$</li>
+            <li>Neue Geschwindigkeit: $v_{neu} = \sqrt{\frac{2 \cdot E_{kin,neu}}{m}}$</li>
         </ol>
 
         <h4>Teilchenbahn:</h4>
         <p>Die Teilchenbahn im Zyklotron besteht aus Halbkreisen mit zunehmendem Radius, da das Teilchen bei jedem Durchgang durch die Lücke an Geschwindigkeit gewinnt. Der theoretische Radius für eine bestimmte Geschwindigkeit beträgt:</p>
-        <p>$$r = \frac{mv}{qB}$$</p>
+        <p>$r = \frac{mv}{qB}$</p>
     </div>
 </div>
 
