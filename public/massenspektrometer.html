@@ -324,42 +324,42 @@
     </style>
 </head>
 <body onload="zoom()" onresize="zoom()">
-    <a href="../index.html" class="control-button" style="top: 20px; right: 20px; text-decoration: none;">Back to Menu</a>
+<a href="../index.html" class="control-button" style="top: 20px; right: 20px; text-decoration: none;">Back to Menu</a>
 
-    <div id="wrapper" style="transform-origin: 0 0;">
-        <div id="root" style="width: 1030px; height: auto;">
-            <!-- The simulation will be rendered here by JavaScript -->
-        </div>
-        <div id="footer">
-        </div>
+<div id="wrapper" style="transform-origin: 0 0;">
+    <div id="root" style="width: 1030px; height: auto;">
+        <!-- The simulation will be rendered here by JavaScript -->
     </div>
-    <script type="importmap">
-        {
-          "imports": {
-            "three": "https://unpkg.com/three@0.137.0/build/three.module.js",
-            "three/examples/jsm/controls/OrbitControls": "https://unpkg.com/three@0.137.0/examples/jsm/controls/OrbitControls.js"
-          }
-        }
-    </script>
+    <div id="footer">
+    </div>
+</div>
+<script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.137.0/build/three.module.js",
+        "three/examples/jsm/controls/OrbitControls": "https://unpkg.com/three@0.137.0/examples/jsm/controls/OrbitControls.js"
+      }
+    }
+</script>
 
-    <script>
-        window.addEventListener("resize", zoom);
-        function zoom() {
-            var maxWidth = document.getElementById("root").offsetWidth;
-            var width = document.body.clientWidth;
-            var scaleW = width / maxWidth;
-            scale = scaleW;
-            if (width >= maxWidth) {
-                scale = 1;
-                document.getElementById("wrapper").style.transform = "scale(1)";
-                document.getElementById("wrapper").style.WebkitTransform = "scale(1)";
-            } else {
-                document.getElementById("wrapper").style.transform = "scale(" + scale + ")";
-                document.getElementById("wrapper").style.WebkitTransform = "scale(" + scale + ")";
-            }
+<script>
+    window.addEventListener("resize", zoom);
+    function zoom() {
+        var maxWidth = document.getElementById("root").offsetWidth;
+        var width = document.body.clientWidth;
+        var scaleW = width / maxWidth;
+        scale = scaleW;
+        if (width >= maxWidth) {
+            scale = 1;
+            document.getElementById("wrapper").style.transform = "scale(1)";
+            document.getElementById("wrapper").style.WebkitTransform = "scale(1)";
+        } else {
+            document.getElementById("wrapper").style.transform = "scale(" + scale + ")";
+            document.getElementById("wrapper").style.WebkitTransform = "scale(" + scale + ")";
         }
-    </script>
+    }
+</script>
 
-    <script type="module" src="/massenspektrometer.js"></script>
+<script type="module" src="/massenspektrometer.js"></script>
 </body>
 </html>

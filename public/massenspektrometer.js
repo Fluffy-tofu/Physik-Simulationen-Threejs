@@ -1,5 +1,3 @@
-
-
 // SVG definitions - we'll define these inline rather than loading external files
 const SVG_DEFS = {
     EFELD: `<svg xmlns="http://www.w3.org/2000/svg" width="6" height="108" viewBox="0 0 6 108">
@@ -82,20 +80,20 @@ let simulationState = {
     Bf: 0, // B-field strength in filter
     Ba: 0, // B-field strength in analyzer
     Ef: 0, // E-field strength
-    sampleType: "A" // Sample type A or B
+    sampleType: "A" // Always using Probe A
 };
 
 // Initialize the simulation
 document.addEventListener('DOMContentLoaded', () => {
     // Create the simulation structure
     setupSimulation();
-    
+
     // Add event listeners to controls
     setupEventListeners();
-    
+
     // Set initial values for fields
     updateFields();
-    
+
     // Load MathJax if it exists
     if(window.MathJax) {
         window.MathJax.typeset();
@@ -105,12 +103,12 @@ document.addEventListener('DOMContentLoaded', () => {
 // Create the HTML structure for the simulation
 function setupSimulation() {
     const root = document.getElementById('root');
-    
+
     // Create simulation container
     const simulationDiv = document.createElement('div');
     simulationDiv.className = 'ms-simulation';
     simulationDiv.id = 'simulation';
-    
+
     // Add simulation elements
     simulationDiv.innerHTML = `
         <div class="blendeOben"></div>
@@ -133,23 +131,19 @@ function setupSimulation() {
             <div id="magnetfeldFilter2" class="magnetfeldFilter2" style="display:none;"></div>
         </div>
     `;
-    
+
     root.appendChild(simulationDiv);
-    
-    // Create controls
+
+    // Create controls - removed sample selector
     const controls = document.createElement('div');
     controls.className = 'controls';
     controls.innerHTML = `
-        <select id="sampleSelect">
-            <option value="A">Probe A</option>
-            <option value="B">Probe B</option>
-        </select>
         <input type="button" id="startStopBtn" value="Start" />
         <input type="button" id="resetBtn" value="Zurücksetzen" />
     `;
-    
+
     root.appendChild(controls);
-    
+
     // Create field settings
     const settingFilter = document.createElement('div');
     settingFilter.className = 'settingFilter setting';
@@ -159,14 +153,14 @@ function setupSimulation() {
         <input type="range" id="eField" min="0" max="0.02" step="0.001" value="0" />
         \\( E_{\\mathrm{F}} = \\) <span id="eFieldValue">0</span> \\( \\rm{\\frac{V}{m}} \\)
     `;
-    
+
     const settingAnalysator = document.createElement('div');
     settingAnalysator.className = 'settingAnalysator setting';
     settingAnalysator.innerHTML = `
         <input type="range" id="bFieldAnalysator" min="0" max="0.08" step="0.005" value="0" />
         \\( B_{\\mathrm{A}} = \\) <span id="bFieldAnalysatorValue">0</span> \\(\\mathrm{T} \\)
     `;
-    
+
     const constants = document.createElement('div');
     constants.className = 'constants';
     constants.innerHTML = `
@@ -174,11 +168,11 @@ function setupSimulation() {
         <span>\\( 1 \\, e = 1{,}6 \\cdot 10^{-19} \\, \\mathrm{C} \\)</span> <br>
         <span>\\( 1 \\, u = 1{,}66 \\cdot 10^{-27} \\, \\mathrm{kg} \\)</span>
     `;
-    
+
     root.appendChild(settingFilter);
     root.appendChild(settingAnalysator);
     root.appendChild(constants);
-    
+
     // Add SVG elements for fields
     updateFieldVisuals();
     updateScaleImage();
@@ -189,23 +183,23 @@ function updateFieldVisuals() {
     // Magnetic field filter
     const magnetfeldZeichen = document.getElementById('magnetfeldZeichen');
     const magnetfeldZeichen2 = document.getElementById('magnetfeldZeichen2');
-    
+
     // Clear field visualizations
     magnetfeldZeichen.innerHTML = '';
     magnetfeldZeichen2.innerHTML = '';
-    
+
     // Hide visualizations if B-field is zero
     if (simulationState.Bf === 0) {
         magnetfeldZeichen.style.display = 'none';
         magnetfeldZeichen2.style.display = 'none';
     } else {
         const margin = 2.8 / Math.sqrt(Math.abs(simulationState.Bf));
-        
+
         // Show the appropriate field based on polarity
         if (simulationState.Bf > 0) {
             magnetfeldZeichen.style.display = 'flex';
             magnetfeldZeichen2.style.display = 'none';
-            
+
             // Create field indicators
             for (let i = 0; i < 300; i++) {
                 const div = document.createElement('div');
@@ -216,7 +210,7 @@ function updateFieldVisuals() {
         } else {
             magnetfeldZeichen.style.display = 'none';
             magnetfeldZeichen2.style.display = 'flex';
-            
+
             // Create field indicators
             for (let i = 0; i < 300; i++) {
                 const div = document.createElement('div');
@@ -226,80 +220,80 @@ function updateFieldVisuals() {
             }
         }
     }
-    
+
     // Electric field
     const efeldZeichen = document.getElementById('efeldZeichen');
     const efeldZeichen2 = document.getElementById('efeldZeichen2');
-    
+
     // Clear field visualizations
     efeldZeichen.innerHTML = '';
     efeldZeichen2.innerHTML = '';
-    
+
     // Hide visualizations if E-field is zero
     if (simulationState.Ef === 0) {
         efeldZeichen.style.display = 'none';
         efeldZeichen2.style.display = 'none';
     } else {
         const spacing = Math.ceil(2.275 / Math.sqrt(Math.abs(simulationState.Ef)));
-        
+
         // Show the appropriate field based on polarity
         if (simulationState.Ef > 0) {
             efeldZeichen.style.display = 'flex';
             efeldZeichen2.style.display = 'none';
-            
+
             // Create field indicators
             for (let i = 0; i < 30; i++) {
                 const div = document.createElement('div');
                 div.style.marginLeft = spacing + 'px';
                 div.style.marginRight = spacing + 'px';
-                
+
                 const img = document.createElement('img');
                 img.src = `data:image/svg+xml;utf8,${encodeURIComponent(SVG_DEFS.EFELD)}`;
                 img.alt = '';
-                
+
                 div.appendChild(img);
                 efeldZeichen.appendChild(div);
             }
         } else {
             efeldZeichen.style.display = 'none';
             efeldZeichen2.style.display = 'flex';
-            
+
             // Create field indicators
             for (let i = 0; i < 30; i++) {
                 const div = document.createElement('div');
                 div.style.marginLeft = spacing + 'px';
                 div.style.marginRight = spacing + 'px';
-                
+
                 const img = document.createElement('img');
                 img.src = `data:image/svg+xml;utf8,${encodeURIComponent(SVG_DEFS.EFELD2)}`;
                 img.alt = '';
-                
+
                 div.appendChild(img);
                 efeldZeichen2.appendChild(div);
             }
         }
     }
-    
+
     // Magnetic field analyzer
     const magnetfeldFilter = document.getElementById('magnetfeldFilter');
     const magnetfeldFilter2 = document.getElementById('magnetfeldFilter2');
-    
+
     // Clear field visualizations
     magnetfeldFilter.innerHTML = '';
     magnetfeldFilter2.innerHTML = '';
-    
+
     // Hide visualizations if B-field is zero
     if (simulationState.Ba === 0) {
         magnetfeldFilter.style.display = 'none';
         magnetfeldFilter2.style.display = 'none';
     } else {
         const mbMargin = 2 / Math.sqrt(Math.abs(simulationState.Ba));
-        
+
         // Show the appropriate field based on polarity
         if (simulationState.Ba > 0) {
             magnetfeldFilter.style.display = 'flex';
             magnetfeldFilter2.style.display = 'none';
-            
+
             // Create field indicators
             for (let i = 0; i < 500; i++) {
                 const div = document.createElement('div');
@@ -310,7 +304,7 @@ function updateFieldVisuals() {
         } else {
             magnetfeldFilter.style.display = 'none';
             magnetfeldFilter2.style.display = 'flex';
-            
+
             // Create field indicators
             for (let i = 0; i < 500; i++) {
                 const div = document.createElement('div');
@@ -335,40 +329,33 @@ function setupEventListeners() {
     startStopBtn.addEventListener('click', () => {
         simulationState.isAnimating = !simulationState.isAnimating;
         startStopBtn.value = simulationState.isAnimating ? "Stop" : "Start";
-        
+
         if (simulationState.isAnimating) {
             animateSimulation();
         }
     });
-    
+
     // Reset button
     const resetBtn = document.getElementById('resetBtn');
     resetBtn.addEventListener('click', () => {
         simulationState.particles = [];
         updateSimulation();
     });
-    
-    // Sample type selector
-    const sampleSelect = document.getElementById('sampleSelect');
-    sampleSelect.addEventListener('change', (e) => {
-        simulationState.sampleType = e.target.value;
-        simulationState.particles = [];
-    });
-    
+
     // B-field filter slider
     const bFieldFilter = document.getElementById('bFieldFilter');
     bFieldFilter.addEventListener('input', (e) => {
         simulationState.Bf = parseFloat(e.target.value);
         updateFields();
     });
-    
+
     // E-field slider
     const eField = document.getElementById('eField');
     eField.addEventListener('input', (e) => {
         simulationState.Ef = parseFloat(e.target.value);
         updateFields();
     });
-    
+
     // B-field analyzer slider
     const bFieldAnalysator = document.getElementById('bFieldAnalysator');
     bFieldAnalysator.addEventListener('input', (e) => {
@@ -383,51 +370,30 @@ function updateFields() {
     document.getElementById('bFieldFilterValue').textContent = simulationState.Bf;
     document.getElementById('eFieldValue').textContent = (simulationState.Ef * 100).toFixed(1);
     document.getElementById('bFieldAnalysatorValue').textContent = simulationState.Ba;
-    
+
     // Update field visualizations
     updateFieldVisuals();
-    
+
     // Update MathJax if it exists
     if (window.MathJax) {
         window.MathJax.typeset();
     }
 }
 
-// Function removed as requested
-
 // Animation loop
 function animateSimulation() {
     if (!simulationState.isAnimating) return;
-    
+
     // Increment time
     simulationState.time++;
-    
+
     // Add new particles periodically
     if (simulationState.time % 8 === 0) {
-        let mass, color, speed;
-        
-        if (simulationState.sampleType === "B") {
-            const random = Math.random();
-            
-            if (random < 0.34) {
-                mass = -2;
-                color = "firebrick";
-                speed = 3.0;
-            } else if (random < 0.67) {
-                mass = -1.223;
-                color = "deeppink";
-                speed = 3.64;
-            } else {
-                mass = -2.7;
-                color = "LightSeaGreen";
-                speed = 2.5;
-            }
-        } else {
-            mass = -1.4;
-            color = "DarkViolet";
-            speed = 3.2;
-        }
-        
+        // Always use Probe A properties
+        const mass = -1.4;
+        const color = "DarkViolet";
+        const speed = 3.2;
+
         simulationState.particles.push({
             x: -40,
             y: 150,
@@ -438,7 +404,7 @@ function animateSimulation() {
             passedFilter: false
         });
     }
-    
+
     // Update particle positions
     simulationState.particles.forEach((particle, index) => {
         // Check if particle is out of bounds or in a "sink"
@@ -446,30 +412,30 @@ function animateSimulation() {
             // Particle has passed the filter and is in the detection gap
             (particle.passedFilter && particle.x > 600 && particle.x < 650 && (particle.y < 145 || particle.y > 155)) ||
             // Particle is out of bounds
-            (particle.x < 600 && (particle.y > 300 || particle.y < 10)) || 
-            (particle.x > 600 && particle.x < 650 && (particle.y < 146 || particle.y > 154)) || 
-            particle.x > 915 || 
-            particle.y < -260 || 
+            (particle.x < 600 && (particle.y > 300 || particle.y < 10)) ||
+            (particle.x > 600 && particle.x < 650 && (particle.y < 146 || particle.y > 154)) ||
+            particle.x > 915 ||
+            particle.y < -260 ||
             particle.y > 300
         ) {
             // Remove particle
             simulationState.particles.splice(index, 1);
             return;
         }
-        
+
         // Flag particles that have passed the filter
         if (particle.x > 660) {
             particle.passedFilter = true;
         }
-        
+
         // Calculate velocity magnitude and direction
         const speed = Math.sqrt(particle.vx * particle.vx + particle.vy * particle.vy);
         const nx = particle.vx / speed;
         const ny = particle.vy / speed;
-        
+
         // Apply magnetic and electric fields
         let bField = 0, eField = 0;
-        
+
         if (particle.x >= 0 && particle.x < 600) {
             // In filter region
             bField = (-1) * simulationState.Bf;
@@ -479,27 +445,27 @@ function animateSimulation() {
             bField = (-1) * simulationState.Ba;
             eField = 0;
         }
-        
+
         // Calculate magnetic force (perpendicular to velocity and field)
         const forceMag = (+speed * bField) / particle.m;
         const fx = ny * forceMag;   // Force in x-direction
         const fy = -nx * forceMag;  // Force in y-direction
-        
+
         // Update velocity
         particle.vx += fx;
         particle.vy += fy;
-        
+
         // Apply electric field
         particle.vy += eField / particle.m;
-        
+
         // Update position
         particle.x += particle.vx;
         particle.y += particle.vy;
     });
-    
+
     // Update visual representation
     updateSimulation();
-    
+
     // Continue animation loop
     requestAnimationFrame(animateSimulation);
 }
@@ -507,11 +473,11 @@ function animateSimulation() {
 // Update the visual representation of particles
 function updateSimulation() {
     const simulation = document.getElementById('simulation');
-    
+
     // Remove existing particle elements
     const existingParticles = simulation.querySelectorAll('.point');
     existingParticles.forEach(p => p.remove());
-    
+
     // Create elements for each particle
     simulationState.particles.forEach(particle => {
         const particleElement = document.createElement('div');
@@ -519,7 +485,7 @@ function updateSimulation() {
         particleElement.style.left = particle.x + 'px';
         particleElement.style.top = particle.y + 'px';
         particleElement.style.backgroundColor = particle.t;
-        
+
         simulation.appendChild(particleElement);
     });
 }
