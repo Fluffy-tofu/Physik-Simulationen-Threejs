@@ -1,72 +1,78 @@
 // SVG definitions - we'll define these inline rather than loading external files
 const SVG_DEFS = {
     EFELD: `<svg xmlns="http://www.w3.org/2000/svg" width="6" height="108" viewBox="0 0 6 108">
-        <path d="M0.666,4.403L3,0.901L5.334,4.403" style="fill:none;stroke:black;stroke-width:1px;"/>
-        <path d="M3,108L3,0.901" style="fill:none;stroke:black;stroke-width:1px;stroke-linejoin:round;stroke-miterlimit:1.5;"/>
+        <path d="M0.666,4.403L3,0.901L5.334,4.403" style="fill:none;stroke:#3498db;stroke-width:1.2px;"/>
+        <path d="M3,108L3,0.901" style="fill:none;stroke:#3498db;stroke-width:1.2px;stroke-linejoin:round;stroke-miterlimit:1.5;"/>
     </svg>`,
     EFELD2: `<svg xmlns="http://www.w3.org/2000/svg" width="6" height="108" viewBox="0 0 6 108">
         <g transform="matrix(1,0,0,-1,0,108)">
             <g transform="matrix(1,0,0,-1,-0,108)">
-                <path d="M5.334,103.597L3,107.099L0.666,103.597" style="fill:none;stroke:black;stroke-width:1px;"/>
-                <path d="M3,0L3,107.099" style="fill:none;stroke:black;stroke-width:1px;stroke-linejoin:round;stroke-miterlimit:1.5;"/>
+                <path d="M5.334,103.597L3,107.099L0.666,103.597" style="fill:none;stroke:#e74c3c;stroke-width:1.2px;"/>
+                <path d="M3,0L3,107.099" style="fill:none;stroke:#e74c3c;stroke-width:1.2px;stroke-linejoin:round;stroke-miterlimit:1.5;"/>
             </g>
         </g>
     </svg>`,
     MAGNETFELD_ANALYSE: `<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 11 11">
-        <path d="M3.373,0.667C4.893,0.667 6.127,1.901 6.127,3.422C6.127,4.942 4.893,6.177 3.373,6.177C1.852,6.177 0.618,4.942 0.618,3.422C0.618,1.901 1.852,0.667 3.373,0.667ZM3.373,1.016C4.701,1.016 5.779,2.094 5.779,3.422C5.779,4.75 4.701,5.828 3.373,5.828C2.045,5.828 0.966,4.75 0.966,3.422C0.966,2.094 2.045,1.016 3.373,1.016Z" style="fill:rgb(247,165,19);" transform="matrix(1.99653,0,0,1.99654,-1.18085,-1.32997)"/>
-        <ellipse cx="5.296" cy="5.34" rx="0.729" ry="0.649" style="fill:rgb(247,165,19);" transform="matrix(1.37251,0,0,1.54172,-1.71584,-2.73069)"/>
+        <path d="M3.373,0.667C4.893,0.667 6.127,1.901 6.127,3.422C6.127,4.942 4.893,6.177 3.373,6.177C1.852,6.177 0.618,4.942 0.618,3.422C0.618,1.901 1.852,0.667 3.373,0.667ZM3.373,1.016C4.701,1.016 5.779,2.094 5.779,3.422C5.779,4.75 4.701,5.828 3.373,5.828C2.045,5.828 0.966,4.75 0.966,3.422C0.966,2.094 2.045,1.016 3.373,1.016Z" style="fill:#ff9800;" transform="matrix(1.99653,0,0,1.99654,-1.18085,-1.32997)"/>
+        <ellipse cx="5.296" cy="5.34" rx="0.729" ry="0.649" style="fill:#ff9800;" transform="matrix(1.37251,0,0,1.54172,-1.71584,-2.73069)"/>
     </svg>`,
     MAGNETFELD_ANALYSE2: `<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 11 11">
-        <path d="M3.373,0.667C4.893,0.667 6.127,1.901 6.127,3.422C6.127,4.942 4.893,6.177 3.373,6.177C1.852,6.177 0.618,4.942 0.618,3.422C0.618,1.901 1.852,0.667 3.373,0.667ZM3.373,1.016C4.701,1.016 5.779,2.094 5.779,3.422C5.779,4.75 4.701,5.828 3.373,5.828C2.045,5.828 0.966,4.75 0.966,3.422C0.966,2.094 2.045,1.016 3.373,1.016Z" style="fill:rgb(247,165,19);" transform="matrix(1.99653,0,0,1.99654,-1.18085,-1.32997)"/>
-        <path d="M5.553,0.507L5.553,10.653" style="fill:none;stroke:rgb(247,165,19);stroke-width:1.02px;" transform="matrix(0.689952,-0.689952,0.689952,0.689952,-2.12831,5.56138)"/>
-        <path d="M5.553,0.507L5.553,10.653" style="fill:none;stroke:rgb(247,165,19);stroke-width:1.02px;" transform="matrix(-0.689952,-0.689952,0.689952,-0.689952,5.53426,13.2614)"/>
+        <path d="M3.373,0.667C4.893,0.667 6.127,1.901 6.127,3.422C6.127,4.942 4.893,6.177 3.373,6.177C1.852,6.177 0.618,4.942 0.618,3.422C0.618,1.901 1.852,0.667 3.373,0.667ZM3.373,1.016C4.701,1.016 5.779,2.094 5.779,3.422C5.779,4.75 4.701,5.828 3.373,5.828C2.045,5.828 0.966,4.75 0.966,3.422C0.966,2.094 2.045,1.016 3.373,1.016Z" style="fill:#ff9800;" transform="matrix(1.99653,0,0,1.99654,-1.18085,-1.32997)"/>
+        <path d="M5.553,0.507L5.553,10.653" style="fill:none;stroke:#ff9800;stroke-width:1.2px;" transform="matrix(0.689952,-0.689952,0.689952,0.689952,-2.12831,5.56138)"/>
+        <path d="M5.553,0.507L5.553,10.653" style="fill:none;stroke:#ff9800;stroke-width:1.2px;" transform="matrix(-0.689952,-0.689952,0.689952,-0.689952,5.53426,13.2614)"/>
     </svg>`,
     MAGNETFELD_FILTER: `<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 11 11">
-        <path d="M3.373,0.667C4.893,0.667 6.127,1.901 6.127,3.422C6.127,4.942 4.893,6.177 3.373,6.177C1.852,6.177 0.618,4.942 0.618,3.422C0.618,1.901 1.852,0.667 3.373,0.667ZM3.373,1.016C4.701,1.016 5.779,2.094 5.779,3.422C5.779,4.75 4.701,5.828 3.373,5.828C2.045,5.828 0.966,4.75 0.966,3.422C0.966,2.094 2.045,1.016 3.373,1.016Z" style="fill:rgb(10,201,19);" transform="matrix(1.90711,0,0,1.90223,-2.1767,-2.73958)"/>
-        <ellipse cx="5.074" cy="5.1" rx="0.844" ry="1.173" style="fill:rgb(10,201,19);" transform="matrix(1.13163,0,0,0.812341,-1.48629,-0.375317)"/>
+        <path d="M3.373,0.667C4.893,0.667 6.127,1.901 6.127,3.422C6.127,4.942 4.893,6.177 3.373,6.177C1.852,6.177 0.618,4.942 0.618,3.422C0.618,1.901 1.852,0.667 3.373,0.667ZM3.373,1.016C4.701,1.016 5.779,2.094 5.779,3.422C5.779,4.75 4.701,5.828 3.373,5.828C2.045,5.828 0.966,4.75 0.966,3.422C0.966,2.094 2.045,1.016 3.373,1.016Z" style="fill:#00c853;" transform="matrix(1.90711,0,0,1.90223,-2.1767,-2.73958)"/>
+        <ellipse cx="5.074" cy="5.1" rx="0.844" ry="1.173" style="fill:#00c853;" transform="matrix(1.13163,0,0,0.812341,-1.48629,-0.375317)"/>
     </svg>`,
     MAGNETFELD_FILTER2: `<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 11 11">
-        <path d="M3.373,0.667C4.893,0.667 6.127,1.901 6.127,3.422C6.127,4.942 4.893,6.177 3.373,6.177C1.852,6.177 0.618,4.942 0.618,3.422C0.618,1.901 1.852,0.667 3.373,0.667ZM3.373,1.016C4.701,1.016 5.779,2.094 5.779,3.422C5.779,4.75 4.701,5.828 3.373,5.828C2.045,5.828 0.966,4.75 0.966,3.422C0.966,2.094 2.045,1.016 3.373,1.016Z" style="fill:rgb(10,201,19);" transform="matrix(1.99653,0,0,1.99654,-1.23386,-1.32997)"/>
-        <path d="M5.553,0.507L5.553,10.653" style="fill:none;stroke:rgb(10,201,19);stroke-width:1.02px;" transform="matrix(0.689952,-0.689952,0.689952,0.689952,-2.18132,5.56138)"/>
-        <path d="M5.553,0.507L5.553,10.653" style="fill:none;stroke:rgb(10,201,19);stroke-width:1.02px;" transform="matrix(-0.689952,-0.689952,0.689952,-0.689952,5.48125,13.2614)"/>
+        <path d="M3.373,0.667C4.893,0.667 6.127,1.901 6.127,3.422C6.127,4.942 4.893,6.177 3.373,6.177C1.852,6.177 0.618,4.942 0.618,3.422C0.618,1.901 1.852,0.667 3.373,0.667ZM3.373,1.016C4.701,1.016 5.779,2.094 5.779,3.422C5.779,4.75 4.701,5.828 3.373,5.828C2.045,5.828 0.966,4.75 0.966,3.422C0.966,2.094 2.045,1.016 3.373,1.016Z" style="fill:#00c853;" transform="matrix(1.99653,0,0,1.99654,-1.23386,-1.32997)"/>
+        <path d="M5.553,0.507L5.553,10.653" style="fill:none;stroke:#00c853;stroke-width:1.2px;" transform="matrix(0.689952,-0.689952,0.689952,0.689952,-2.18132,5.56138)"/>
+        <path d="M5.553,0.507L5.553,10.653" style="fill:none;stroke:#00c853;stroke-width:1.2px;" transform="matrix(-0.689952,-0.689952,0.689952,-0.689952,5.48125,13.2614)"/>
     </svg>`,
     SKALA: `<svg xmlns="http://www.w3.org/2000/svg" width="13.211104mm" height="99.818001mm" viewBox="0 0 13.211104 99.817999">
+        <defs>
+            <linearGradient id="scaleGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" style="stop-color:#444;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#000;stop-opacity:1" />
+            </linearGradient>
+        </defs>
         <!-- Scale markings - simplified version -->
         <g transform="translate(-42.086815,-28.016009)">
-            <path style="fill:none;stroke:#000000;stroke-width:0.3346743px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+            <path style="fill:none;stroke:url(#scaleGradient);stroke-width:0.4px;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1"
                 d="m 51.329168,125.55 h 3.96875" />
-            <path style="fill:none;stroke:#000000;stroke-width:0.3346743px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+            <path style="fill:none;stroke:url(#scaleGradient);stroke-width:0.3px;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1"
                 d="m 52.652085,123.43334 h 2.645833" />
-            <path style="fill:none;stroke:#000000;stroke-width:0.3346743px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+            <path style="fill:none;stroke:url(#scaleGradient);stroke-width:0.3px;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1"
                 d="m 52.652085,121.31668 h 2.645833" />
-            <path style="fill:none;stroke:#000000;stroke-width:0.3346743px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+            <path style="fill:none;stroke:url(#scaleGradient);stroke-width:0.3px;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1"
                 d="m 52.652085,119.19999 h 2.645833" />
-            <path style="fill:none;stroke:#000000;stroke-width:0.3346743px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+            <path style="fill:none;stroke:url(#scaleGradient);stroke-width:0.3px;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1"
                 d="m 52.652085,117.08333 h 2.645833" />
-            <path style="fill:none;stroke:#000000;stroke-width:0.3346743px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+            <path style="fill:none;stroke:url(#scaleGradient);stroke-width:0.4px;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1"
                 d="m 51.329169,114.96666 h 3.96875" />
             <!-- More scale markings omitted for brevity -->
             
             <!-- Scale labels -->
-            <text style="font-size:2.82222223px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;"
+            <text style="font-size:2.82222223px;line-height:1.25;font-family:'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;letter-spacing:0px;word-spacing:0px;fill:#444;font-weight:500;"
                 x="43.576752" y="105.17144">3 cm</text>
-            <text style="font-size:2.82222223px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;"
+            <text style="font-size:2.82222223px;line-height:1.25;font-family:'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;letter-spacing:0px;word-spacing:0px;fill:#444;font-weight:500;"
                 x="43.502636" y="126.37839">1 cm</text>
-            <text style="font-size:2.82222223px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;"
+            <text style="font-size:2.82222223px;line-height:1.25;font-family:'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;letter-spacing:0px;word-spacing:0px;fill:#444;font-weight:500;"
                 x="43.557434" y="115.8021">2 cm</text>
-            <text style="font-size:2.82222223px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;"
+            <text style="font-size:2.82222223px;line-height:1.25;font-family:'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;letter-spacing:0px;word-spacing:0px;fill:#444;font-weight:500;"
                 x="43.510609" y="94.595856">4 cm</text>
-            <text style="font-size:2.82222223px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;"
+            <text style="font-size:2.82222223px;line-height:1.25;font-family:'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;letter-spacing:0px;word-spacing:0px;fill:#444;font-weight:500;"
                 x="43.494072" y="84.01252">5 cm</text>
-            <text style="font-size:2.82222223px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;"
+            <text style="font-size:2.82222223px;line-height:1.25;font-family:'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;letter-spacing:0px;word-spacing:0px;fill:#444;font-weight:500;"
                 x="43.494072" y="73.429192">6 cm</text>
-            <text style="font-size:2.82222223px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;"
+            <text style="font-size:2.82222223px;line-height:1.25;font-family:'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;letter-spacing:0px;word-spacing:0px;fill:#444;font-weight:500;"
                 x="43.494072" y="62.829319">7 cm</text>
-            <text style="font-size:2.82222223px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;"
+            <text style="font-size:2.82222223px;line-height:1.25;font-family:'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;letter-spacing:0px;word-spacing:0px;fill:#444;font-weight:500;"
                 x="43.527145" y="52.279057">8 cm</text>
-            <text style="font-size:2.82222223px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;"
+            <text style="font-size:2.82222223px;line-height:1.25;font-family:'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;letter-spacing:0px;word-spacing:0px;fill:#444;font-weight:500;"
                 x="43.527145" y="41.679188">9 cm</text>
-            <text style="font-size:2.82222223px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;"
+            <text style="font-size:2.82222223px;line-height:1.25;font-family:'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;letter-spacing:0px;word-spacing:0px;fill:#444;font-weight:500;"
                 x="41.70372" y="31.104366">10 cm</text>
         </g>
     </svg>`
@@ -134,7 +140,7 @@ function setupSimulation() {
 
     root.appendChild(simulationDiv);
 
-    // Create controls - removed sample selector
+    // Create controls - modernized buttons
     const controls = document.createElement('div');
     controls.className = 'controls';
     controls.innerHTML = `
@@ -144,28 +150,45 @@ function setupSimulation() {
 
     root.appendChild(controls);
 
-    // Create field settings
+    // Create field settings with modern sliders and value display
     const settingFilter = document.createElement('div');
     settingFilter.className = 'settingFilter setting';
     settingFilter.innerHTML = `
-        <input type="range" id="bFieldFilter" min="0" max="0.01" step="0.0005" value="0" />
-        \\( B_{\\rm{F}} = \\) <span id="bFieldFilterValue">0</span> \\(\\rm{T} \\)<br />
-        <input type="range" id="eField" min="0" max="0.02" step="0.001" value="0" />
-        \\( E_{\\mathrm{F}} = \\) <span id="eFieldValue">0</span> \\( \\rm{\\frac{V}{m}} \\)
+        <div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span>\\( B_{\\rm{F}} \\)</span>
+                <span class="field-value" id="bFieldFilterValue">0</span>
+                <span>\\(\\rm{T} \\)</span>
+            </div>
+            <input type="range" id="bFieldFilter" min="0" max="0.01" step="0.0005" value="0" />
+        </div>
+        <div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span>\\( E_{\\mathrm{F}} \\)</span>
+                <span class="field-value" id="eFieldValue">0</span>
+                <span>\\( \\rm{\\frac{V}{m}} \\)</span>
+            </div>
+            <input type="range" id="eField" min="0" max="0.02" step="0.001" value="0" />
+        </div>
     `;
 
     const settingAnalysator = document.createElement('div');
     settingAnalysator.className = 'settingAnalysator setting';
     settingAnalysator.innerHTML = `
-        <input type="range" id="bFieldAnalysator" min="0" max="0.08" step="0.005" value="0" />
-        \\( B_{\\mathrm{A}} = \\) <span id="bFieldAnalysatorValue">0</span> \\(\\mathrm{T} \\)
+        <div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span>\\( B_{\\mathrm{A}} \\)</span>
+                <span class="field-value" id="bFieldAnalysatorValue">0</span>
+                <span>\\(\\mathrm{T} \\)</span>
+            </div>
+            <input type="range" id="bFieldAnalysator" min="0" max="0.08" step="0.005" value="0" />
+        </div>
     `;
 
     const constants = document.createElement('div');
     constants.className = 'constants';
     constants.innerHTML = `
-        Konstanten: <br>
-        <span>\\( 1 \\, e = 1{,}6 \\cdot 10^{-19} \\, \\mathrm{C} \\)</span> <br>
+        <span>\\( 1 \\, e = 1{,}6 \\cdot 10^{-19} \\, \\mathrm{C} \\)</span>
         <span>\\( 1 \\, u = 1{,}66 \\cdot 10^{-27} \\, \\mathrm{kg} \\)</span>
     `;
 
