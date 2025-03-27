@@ -1,124 +1,126 @@
-# Physics Simulations with Three.js
+# Physiksimulationen mit Three.js
 
-A collection of interactive 3D physics simulations built using Three.js. This project demonstrates various physics concepts through visual, interactive web-based demonstrations.
+Eine Sammlung interaktiver 3D-Physiksimulationen, die mit Three.js entwickelt wurden. Dieses Projekt veranschaulicht verschiedene physikalische Konzepte durch visuelle, webbasierte Demonstrationen.
 
-## Features
+## Simulationen
 
-### 1. Torus Scene (Scene 1)
-- Interactive 3D torus with dynamic rotation
-- Ambient star field background
-- Fully controllable camera with orbit controls
-- Lighting effects with point and ambient light
+### 1. Zyklotron
+- Simulation der Teilchenbeschleunigung in einem Zyklotron
+- Visualisierung der magnetischen und elektrischen Felder
+- Darstellung der Teilchenbahn
+- Anzeige von Energie, Geschwindigkeit und Frequenz in Echtzeit
+- Anpassbare Parameter (Magnetfeld, Spannung, Teilchenmasse)
+- Wählbare Teilchentypen (Proton, Elektron, Alpha-Teilchen, Deuteron)
+- Realistische Wertedarstellung
 
-### 2. Bouncing Balls Simulation (Scene 2)
-- Simulation of two spheres under gravity
-- Realistic bounce physics with damping
-- Floor collision detection
-- Wireframe visualization
-- Adjustable physics parameters (gravity, bounce factor)
+### 2. Wienscher Geschwindigkeitsfilter
+- Simulation der Bewegung geladener Teilchen in gekreuzten E- und B-Feldern
+- Visualisierung der Feldlinien
+- Interaktive Anpassung von E-Feld, B-Feld und Teilchenparametern
+- Demonstration der Geschwindigkeitsselektion geladener Teilchen
+- Anzeige der Lorentzkraft und ihrer Auswirkungen
 
-### 3. Gravitational Attraction (Scene 3)
-- Two-body gravitational simulation
-- Particle trails showing movement history
-- Camera follows system center of mass
-- Collision handling with elastic bouncing
-- Real-time position tracking
-- Adjustable mass and gravitational constants
+### 3. Massenspektrometer nach Bainbridge
+- Vollständige Simulation eines Massenspektrometers
+- Visualisierung der Ablenkung von Ionen unterschiedlicher Masse
+- Darstellung von Magnetfeld und elektrischem Feld
+- Analyse verschiedener Proben mit unterschiedlichen Ionentypen
+- Interaktive Steuerung von Feld- und Filtereigenschaften
 
-### 4. Cyclotron Simulation (Scene 4)
-- Particle acceleration simulation
-- Magnetic and electric field effects
-- Dee electrode visualization
-- Particle trajectory tracking
-- Color-coded field visualization
-- Dynamic field switching
+### 4. Hall-Effekt
+- Interaktive Demonstration des Hall-Effekts
+- Visualisierung der Elektronenbewegung in einem Leiter
+- Darstellung der Lorentzkraft und der resultierenden Ladungstrennung
+- Berechnung und Anzeige der Hall-Spannung
+- Auswahl verschiedener Materialien mit unterschiedlichen Hall-Koeffizienten
+- Eingebautes Tutorial zur Erklärung des physikalischen Prinzips
 
-### 5. Magnetic Field Visualization
-- Magnetic field line visualization
-- Interactive field strength control
-- Grid helper for spatial reference
-- Vector field representation
-- Positive and negative pole visualization
+## Technische Details
 
-## Technical Details
-
-### Technologies Used
-- Three.js for 3D rendering
+### Verwendete Technologien
+- Three.js für die 3D-Rendering
 - JavaScript ES6+
 - HTML5 Canvas
-- CSS3 for styling
-- Vite for development and building
+- CSS3 für Styling
+- Vite für Entwicklung und Build-Prozess
 
-### Physics Implementation
-- Custom physics engine for each simulation
-- Time-step based calculations
-- Vector mathematics for force calculations
-- Collision detection and response
-- Trail rendering using Three.js TubeGeometry
+### Physik-Implementierung
+- Benutzerdefinierte Physik-Engines für jede Simulation
+- Zeitschrittbasierte Berechnungen
+- Vektorrechnung für Kraftberechnungen
+- Kollisionserkennung und -reaktion
+- Visualisierung von Teilchenbahnen
 
-## Getting Started
+## Installation
 
-### Prerequisites
-- Node.js (version 14 or higher recommended)
-- npm or yarn package manager
+### Voraussetzungen
+- Node.js (Version 14 oder höher empfohlen)
+- npm oder yarn Paketmanager
 
 ### Installation
-1. Clone the repository:
+1. Repository klonen:
 ```bash
 git clone [repository-url]
 ```
 
-2. Install dependencies:
+2. Abhängigkeiten installieren:
 ```bash
 npm install
 ```
 
-3. Start the development server:
+3. Entwicklungsserver starten:
 ```bash
 npm run dev
 ```
 
-4. Open your browser and navigate to `http://localhost:5173`
+4. Browser öffnen und zu `http://localhost:5173` navigieren
 
-## Usage
+## Verwendung
 
-Each scene can be accessed from the main menu. Use the following controls:
-- Left-click and drag to rotate the camera
-- Right-click and drag to pan
-- Scroll to zoom
-- Use the "Start Animation" button to begin/pause simulations
-- "Back to Menu" button returns to the scene selection screen
+Auf der Hauptseite kann jede Simulation durch Anklicken des entsprechenden Buttons aufgerufen werden:
 
-## Scene-Specific Controls
+- **Zyklotron**: Simulation eines Teilchenbeschleunigers
+- **Wienscher Geschwindigkeitsfilter**: Demonstration der Geschwindigkeitsselektion
+- **Massenspektrometer**: Analyse verschiedener Ionentypen
+- **Hall-Effekt**: Visualisierung und Erklärung des Hall-Effekts
 
-### Torus Scene
-- Automatic rotation when animation is started
-- Full orbital camera control
+### Steuerung
+- Linksklick und Ziehen, um die Kamera zu drehen
+- Rechtsklick und Ziehen, um die Kamera zu schwenken
+- Mausrad zum Zoomen
+- "Start Animation" / "Animation starten" Button zum Starten/Pausieren
+- "Back to Menu" / "Zurück zum Menü" Button, um zur Auswahlseite zurückzukehren
 
-### Bouncing Balls
-- Physics parameters can be adjusted in the code:
-  - `gravity` - Gravitational acceleration
-  - `bounce` - Bounce damping factor
-  - `sphereRadius` - Size of the spheres
+### Simulations-spezifische Steuerungen
 
-### Gravitational Attraction
-- Adjustable parameters:
-  - `sphereMass1`, `sphereMass2` - Masses of the bodies
-  - `Gravity` - Gravitational constant
-  - `maxTrailLength` - Length of trajectory trails
+#### Zyklotron
+- Anpassbare Parameter:
+  - Teilchentyp (Proton, Elektron, Alpha-Teilchen, Deuteron)
+  - Magnetfeldstärke
+  - Spannung
+  - Anfangsgeschwindigkeit
+  - Dee-Größe
 
-### Cyclotron
-- Configurable parameters:
-  - `B` - Magnetic field strength
-  - `E` - Electric field strength
-  - `q` - Particle charge
-  - `m` - Particle mass
+#### Wienscher Geschwindigkeitsfilter
+- Anpassbare Parameter:
+  - E-Feld Stärke
+  - B-Feld Stärke
+  - Teilchengeschwindigkeit
+  - Teilchenladung
 
-### Magnetic Field
-- Visualization of magnetic field lines
-- Adjustable field strength and direction
+#### Massenspektrometer
+- Probenauswahl (A oder B)
+- Steuerung für B-Feld im Filter
+- Steuerung für E-Feld
+- Steuerung für B-Feld im Analysator
 
+#### Hall-Effekt
+- Anpassbare Parameter:
+  - B-Feld Stärke
+  - Stromstärke
+  - Materialauswahl (mit verschiedenen Hall-Koeffizienten)
+- Interaktives Tutorial zur Erklärung der Funktionsweise
 
-## License
+## Lizenz
 
-This project is open source and available under the MIT License.
+Dieses Projekt steht unter der MIT-Lizenz.
