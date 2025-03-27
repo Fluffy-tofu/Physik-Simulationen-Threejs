@@ -5,7 +5,6 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <link rel="stylesheet" href="/styles.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Massenspektrometer nach Bainbridge</title>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <style>
         body {
@@ -314,7 +313,7 @@
             height: 4px;
             cursor: pointer;
         }
-        
+
         #footer {
             position: absolute;
             top: 700px;
@@ -326,15 +325,12 @@
 </head>
 <body onload="zoom()" onresize="zoom()">
     <a href="../index.html" class="control-button" style="top: 20px; right: 20px; text-decoration: none;">Back to Menu</a>
-    
+
     <div id="wrapper" style="transform-origin: 0 0;">
         <div id="root" style="width: 1030px; height: auto;">
             <!-- The simulation will be rendered here by JavaScript -->
         </div>
         <div id="footer">
-            <div>
-                <span>Massenspektrometer nach Bainbridge</span>
-            </div>
         </div>
     </div>
     <script type="importmap">
@@ -363,7 +359,7 @@
             }
         }
     </script>
-    
+
     <script type="module" src="/massenspektrometer.js"></script>
 </body>
 </html>
